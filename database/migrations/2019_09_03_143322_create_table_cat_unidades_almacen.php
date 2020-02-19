@@ -15,7 +15,7 @@ class CreateTableCatUnidadesAlmacen extends Migration
     {
         Schema::create('cat_unidades_almacen', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('descripcion');
+            $table->string('descripcion_corta');
             $table->string('descripcion_larga');
             $table->boolean('estatus')->default(1);
             $table->timestamps();

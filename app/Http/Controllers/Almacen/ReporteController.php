@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Almacen;
 
 use Illuminate\Http\Request;
 
-
 use App\Http\Controllers\Controller;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Illuminate\Database\QueryException;
@@ -102,6 +101,13 @@ class ReporteController extends Controller
             $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'INV. FIN'];
             $papel = 'letter';
             $orientacion='portrait';
+
+            $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')->get();
+            $articulos = DB::table('cat_articulos')
+                            ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                            ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario')
+                            ->get();
+            
         }elseif ($existencias == "checked"){
             $mensaje = 'Reporte final de existencias';
             $nombre_archivo="REPFINALEXIST";
