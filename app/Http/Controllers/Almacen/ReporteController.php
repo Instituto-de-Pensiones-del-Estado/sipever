@@ -51,6 +51,7 @@ class ReporteController extends Controller
         $validConsumo = $request->input('validConsumo');
         $consDepto = $request->input('consDepto');
         $auxAlmacen = $request->input('auxAlmacen');
+        $compAlmacen = $request->input('compAlmacen');
         $consArticulo = $request->input('consArticulo');
         $existencias = $request->input('existencias');
         $compArticulo = $request->input('compArticulo');
@@ -102,6 +103,24 @@ class ReporteController extends Controller
             $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'INV. FIN'];
             $papel = 'letter';
             $orientacion='portrait';
+        }elseif ($compAlmacen == "checked"){
+            $mensaje = 'Reporte de compras de almacén general';
+            $nombre_archivo="REPCOMPALM";
+            $ruta = "almacen.reportes.reporte_compras";
+            $headers=['CODIF.','DESCRIPCION','FACTURA','UNIDAD','CANT.','COSTO UNIT.','IMPORTE'];
+            $papel = 'letter';
+            $orientacion='portrait';
+            $cuenta = DB::table('cat_cuentas_contables')
+                      ->select('cat_cuentas_contables.sscta','cat_cuentas_contables.nombre')
+                      ->get();
+            $consulta = DB::table('detalles')
+                      ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                      ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                      ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                      ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                      ->select('cat_cuentas_contables.sscta','cat_cuentas_contables.nombre','cat_articulos.clave', 'cat_articulos.descripcion', 'compras.no_factura', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal')
+                      ->get();
+            //dd($cuenta);       
         }elseif ($existencias == "checked"){
             $mensaje = 'Reporte final de existencias';
             $nombre_archivo="REPFINALEXIST";
@@ -189,7 +208,7 @@ class ReporteController extends Controller
         $fecha = date("d/M/Y");
         $hora = date("h:i a");
         $pdf = null;
-        $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo'))->setPaper($papel, $orientacion);
+        $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consulta', 'cuenta'))->setPaper($papel, $orientacion);
 
         return $pdf->stream($nombre_archivo);
     }

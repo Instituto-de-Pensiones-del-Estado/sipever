@@ -53,9 +53,9 @@ class FacturaController extends Controller
         if($subtotal != $total_aux){
             return back()->with('warning','Advertencia, los precios no coinciden con el total, verifique los datos de la factura');
         }
-        if($total_aux > 101000){
+       /* if($total_aux > 101000){
             return back()->with('warning','Advertencia, Está registando un precio que excede el límite permitido, favor de contactar el Departamento de tecnologías de la información');
-        }
+        }*/
 
         if(empty($articulos)){
             return back()->with('warning','Porfavor ingrese al menos un articulo');
