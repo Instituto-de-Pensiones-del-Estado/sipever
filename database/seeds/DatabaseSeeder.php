@@ -52,14 +52,13 @@ class DatabaseSeeder extends Seeder
         //$this->call(CatDependenciasTableSeeder::class);
 
         // Seed Cuentas Contables
-        $this->call(CatCuentasContablesTableSeeder::class);
-
+        $this->call(CatCuentaContableTableSeeder::class);
 
         // Seed Articulos
         $this->call(CatArticulosTableSeeder::class);
 
         // Seed Extensiones
-        $this->call(CatExtensionesTableSeeder::class);
+        //$this->call(CatExtensionesTableSeeder::class);
 
          // Seed Empleados
          $this->call(CatEmpleadosTableSeeder::class);
