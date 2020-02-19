@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Almacen;
 
 use Illuminate\Http\Request;
 
-
 use App\Http\Controllers\Controller;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Illuminate\Database\QueryException;
