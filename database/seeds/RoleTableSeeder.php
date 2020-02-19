@@ -32,50 +32,50 @@ class RoleTableSeeder extends Seeder
 
 
         //Rol de Administrador de Almacén   
-       /* $role = Role::create(['name' => 'almacen_admin', 'description' => 'Almacen_admin']);
-        Permission::create(['name' => 'almacen_admin_roles_create']);
-        Permission::create(['name' => 'almacen_admin_roles_edit']);
-        Permission::create(['name' => 'almacen_admin_roles_show']);
-        Permission::create(['name' => 'almacen_admin_roles_destroy']);
+        $role = Role::create(['name' => 'almacen_admin', 'description' => 'Almacen_admin']);
+        Permission::create(['name' => 'almacen_admin_create']);
+        Permission::create(['name' => 'almacen_admin_edit']);
+        Permission::create(['name' => 'almacen_admin_show']);
+        Permission::create(['name' => 'almacen_admin_delete']);
         //$role->givePermissionTo('admin_roles_ver');
 
         $role->givePermissionTo([
-            'almacen_admin_roles_create',
-            'almacen_admin_roles_edit',
-            'almacen_admin_roles_show',
-            'almacen_admin_roles_destroy'
-        ]);*/
+            'almacen_admin_create',
+            'almacen_admin_edit',
+            'almacen_admin_show',
+            'almacen_admin_delete'
+        ]);
 
         //Rol de Capturista de Almacén
-        /*$role = Role::create(['name' => 'almacen_capturista', 'description' => 'Almacen_capturista']);
-        Permission::create(['name' => 'almacen_capturista_roles_create']);
-        Permission::create(['name' => 'almacen_capturista_roles_edit']);
-        Permission::create(['name' => 'almacen_capturista_roles_show']);
-        Permission::create(['name' => 'almacen_capturista_roles_destroy']);
+        $role = Role::create(['name' => 'almacen_capturista', 'description' => 'Almacen_capturista']);
+        Permission::create(['name' => 'almacen_capturista_create']);
+        Permission::create(['name' => 'almacen_capturista_edit']);
+        Permission::create(['name' => 'almacen_capturista_show']);
+        //Permission::create(['name' => 'almacen_capturista_roles_destroy']);
         //$role->givePermissionTo('admin_roles_ver');
 
         $role->givePermissionTo([
-            'almacen_capturista_roles_create',
-            'almacen_capturista_roles_edit',
-            'almacen_capturista_roles_show',
-            'almacen_capturista_roles_destroy'
-        ]);*/
+            'almacen_capturista_create',
+            'almacen_capturista_edit',
+            'almacen_capturista_show'//,
+            //'almacen_admin_destroy'
+        ]);
 
         //Rol de Oficinista de Almacén    
-       /* $role = Role::create(['name' => 'almacen_oficinista', 'description' => 'Almacen_oficinista']);
-        Permission::create(['name' => 'almacen_oficinista_roles_create']);
-        Permission::create(['name' => 'almacen_oficinista_roles_edit']);
-        Permission::create(['name' => 'almacen_oficinista_roles_show']);
-        Permission::create(['name' => 'almacen_oficinista_roles_destroy']);
+        $role = Role::create(['name' => 'almacen_oficinista', 'description' => 'Almacen_oficinista']);
+        Permission::create(['name' => 'almacen_oficinista_create']);
+        //Permission::create(['name' => 'almacen_oficinista_roles_edit']);
+        Permission::create(['name' => 'almacen_oficinista_show']);
+        //Permission::create(['name' => 'almacen_oficinista_roles_destroy']);
         //$role->givePermissionTo('admin_roles_ver');
 
         $role->givePermissionTo([
-            'almacen_oficinista_roles_create',
-            'almacen_oficinista_roles_edit',
-            'almacen_oficinista_roles_show',
-            'almacen_oficinista_roles_destroy'
+            'almacen_oficinista_create',
+            //'almacen_oficinista_edit',
+            'almacen_oficinista_show'//,
+            //'almacen_oficinista_destroy'
 
-        ]);*/
+        ]);
 
         
 

@@ -15,9 +15,9 @@ class UserTableSeeder extends Seeder
     {
        
         $role_admin = Role::where('name', 'admin')->first();
-        //$role_almacen_admin = Role::where('name', 'almacen_admin')->first();
-        //$role_almacen_capturista = Role::where('name', 'almacen_capturista')->first();
-        //$role_almacen_oficinista = Role::where('name', 'almacen_oficinista')->first();
+        $role_almacen_admin = Role::where('name', 'almacen_admin')->first();
+        $role_almacen_capturista = Role::where('name', 'almacen_capturista')->first();
+        $role_almacen_oficinista = Role::where('name', 'almacen_oficinista')->first();
       
 
         //Administrador
@@ -31,34 +31,34 @@ class UserTableSeeder extends Seeder
         $user->roles()->attach($role_admin);
 
         //Administrador de Almacén
-        /*$user = new User();
-        $user->name = 'almacen_admin';
+        $user = new User();
+        $user->name = 'SCASTILLO';
         $user->username = 'SCASTILLO';
         $user->email = 'scastillo@ipe.com';
-        $user->password = bcrypt('secret');
+        $user->password = bcrypt('1234567');
         $user->id_empleado = 1;
         $user->save();
-        $user->roles()->attach($role_almacen_admin);*/
+        $user->roles()->attach($role_almacen_admin);
 
         //Capturista de Almacén
-        /*$user = new User();
-        $user->name = 'almacen_capturista';
-        $user->username = 'EGUTIERREZ';
-        $user->email = 'egutierrez@ipe.com';
-        $user->password = bcrypt('secret');
-        $user->id_empleado = 2;
+        $user = new User();
+        $user->name = 'VLOPEZ';
+        $user->username = 'VLOPEZ';
+        $user->email = 'vlopez@ipe.com';
+        $user->password = bcrypt('1234567');
+        $user->id_empleado = 6;
         $user->save();
-        $user->roles()->attach($role_almacen_capturista);*/
+        $user->roles()->attach($role_almacen_capturista);
 
         //Oficinista de Almacén
-       /* $user = new User();
-        $user->name = 'almacen_oficinista';
-        $user->username = 'ABARRADAS';
-        $user->email = 'abarradas@ipe.com';
-        $user->password = bcrypt('secret');
-        $user->id_empleado = 4;
+        $user = new User();
+        $user->name = 'ABALBOA';
+        $user->username = 'ABALBOA';
+        $user->email = 'abalboa@ipe.com';
+        $user->password = bcrypt('1234567');
+        $user->id_empleado = 5;
         $user->save();
-        $user->roles()->attach($role_almacen_oficinista);*/
+        $user->roles()->attach($role_almacen_oficinista);
 
 
     }
