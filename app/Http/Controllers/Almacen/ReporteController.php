@@ -80,6 +80,44 @@ class ReporteController extends Controller
         $papel = null;
         $orientacion= null;
 
+
+        if($query){
+            dd('Haciendo la query');
+            //Hacemos un binding de los parámetros, así protegemos nuestra
+            //llamada de una posible inyección sql
+            $query->bindParam(1,$numMesInicio);
+            if ($periodo) {
+                $query->bindParam(2,$mesFin);
+            }else{
+                $query->bindParam(2,$numMesInicio);
+            }
+            $query->bindParam(3, $yearInicio);
+        }
+
+        if($query){
+            try {
+                $query->execute();
+                $query->closeCursor();
+                //accedemos al valor de retorno para regresar la vista correspondiente.
+                $results = $query->fetch(PDOConnection::FETCH_OBJ);
+            } catch (Exception $e) {
+                throw new QueryException("Error Processing Request", 1);
+                
+            }
+        }
+
+        date_default_timezone_set('America/Mexico_City');
+        $fecha_nombre=date("Ymd");
+        $hora_nombre=date("Hi");
+        $nombre_archivo = "{$fecha_nombre}_{$nombre_archivo}_{$hora_nombre}";
+        $tipo = 'reporte';
+        $archivo = file_get_contents(public_path("/img_system/banner_principal.png"));
+        $imagen_b64 = base64_encode($archivo);
+        $logo_b64 = "data:image/png;base64,{$imagen_b64}";
+        $fecha = date("d/M/Y");
+        $hora = date("h:i a");
+        $pdf = null;
+
         if ($validConsumo == "checked"){
             $mensaje = 'Reporte para validación de consumos';
             $nombre_archivo="REPVALIDCONS";
@@ -105,8 +143,13 @@ class ReporteController extends Controller
             $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')->get();
             $articulos = DB::table('cat_articulos')
                             ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                            ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario')
+                            ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                            ->where('existencias','>',0)
                             ->get();
+            //dd($articulos);
+            
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
+           
             
         }elseif ($existencias == "checked"){
             $mensaje = 'Reporte final de existencias';
@@ -159,45 +202,8 @@ class ReporteController extends Controller
             $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
         }
 
-        if($query){
-            dd('Haciendo la query');
-            //Hacemos un binding de los parámetros, así protegemos nuestra
-            //llamada de una posible inyección sql
-            $query->bindParam(1,$numMesInicio);
-            if ($periodo) {
-                $query->bindParam(2,$mesFin);
-            }else{
-                $query->bindParam(2,$numMesInicio);
-            }
-            $query->bindParam(3, $yearInicio);
-        }
-
-        if($query){
-            try {
-                $query->execute();
-                $query->closeCursor();
-                //accedemos al valor de retorno para regresar la vista correspondiente.
-                $results = $query->fetch(PDOConnection::FETCH_OBJ);
-            } catch (Exception $e) {
-                throw new QueryException("Error Processing Request", 1);
-                
-            }
-        }
-
-        date_default_timezone_set('America/Mexico_City');
-        $fecha_nombre=date("Ymd");
-        $hora_nombre=date("Hi");
-        $nombre_archivo = "{$fecha_nombre}_{$nombre_archivo}_{$hora_nombre}";
-        $tipo = 'reporte';
-        $archivo = file_get_contents(public_path("/img_system/banner_principal.png"));
-        $imagen_b64 = base64_encode($archivo);
-        $logo_b64 = "data:image/png;base64,{$imagen_b64}";
-        $fecha = date("d/M/Y");
-        $hora = date("h:i a");
-        $pdf = null;
-        $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo'))->setPaper($papel, $orientacion);
-
         return $pdf->stream($nombre_archivo);
+       
     }
 
     /**
