@@ -171,8 +171,8 @@
                                     <select name="unidad" class="col-sm-2 colm-form form-control" dir="ltr" id="articuloUnidad" disabled required>
                                         <option>{{$articulo->descripcion_u_medida}}</option>
                                         @foreach($unidades as $unidad)
-                                            @if($unidad->descripcion != $articulo->descripcion_u_medida)
-                                                <option value="{{$unidad->descripcion}}">{{ $unidad->descripcion }}</option>
+                                            @if($unidad->descripcion_corta != $articulo->descripcion_u_medida)
+                                                <option value="{{$unidad->descripcion_corta}}">{{ $unidad->descripcion_corta }}</option>
                                             @endif
                                         @endforeach
                                     </select>

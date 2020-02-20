@@ -18,13 +18,13 @@
     @foreach ($articulos as $itemArticulo)
         @if ($itemArticulo->id_cuenta == $itemPartida->id)
         <tr>
-            <th scope="row"> {{$itemArticulo->clave}} </th>
-            <th>{{$itemArticulo->descripcion}}</th>
-            <th>{{$itemArticulo->no_factura}}</th>
-            <th>{{$itemArticulo->descripcion_corta}}</th>
-            <th>{{$itemArticulo->cantidad}}</th>
-            <th>{{$itemArticulo->precio_unitario}}</th>
-            <th>{{$itemArticulo->subtotal}}</th>
+            <td scope="row"> {{$itemArticulo->clave}} </td>
+            <td>{{$itemArticulo->descripcion}}</td>
+            <td>{{$itemArticulo->no_factura}}</td>
+            <td>{{$itemArticulo->descripcion_corta}}</td>
+            <td>{{$itemArticulo->cantidad}}</td>
+            <td>{{$itemArticulo->precio_unitario}}</td>
+            <td>{{$itemArticulo->subtotal}}</td>
         </tr>
 
         @endif

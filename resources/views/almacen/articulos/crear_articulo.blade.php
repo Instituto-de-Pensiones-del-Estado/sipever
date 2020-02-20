@@ -25,7 +25,7 @@
                             <input name="existencias" type="text" class="col-sm-1 colm-form-md form-control" id="articuloExistencias" placeholder="Existencias"required>
                             <select name="unidad" class="col-sm-2 colm-form form-control" style="width: 100%;" dir="ltr" id="articuloUnidad" required>
                                 @foreach($unidades as $unidad)
-                                    <option value="{{$unidad->descripcion}}">{{ $unidad->descripcion }}</option>
+                                    <option value="{{$unidad->descripcion_corta}}">{{ $unidad->descripcion_corta }}</option>
                                 @endforeach
                             </select>
                         </div>

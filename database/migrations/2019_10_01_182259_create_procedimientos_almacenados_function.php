@@ -47,7 +47,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
             CONTAINS SQL
             SQL SECURITY DEFINER
             BEGIN
-            SELECT a.id, a.clave, a.descripcion, a.estatus, a.stock_minimo, a.existencias, FORMAT(a.precio_unitario,2) AS precio_unitario, b.descripcion AS descripcion_u_medida, c.nombre as descripcion_cuenta
+            SELECT a.id, a.clave, a.descripcion, a.estatus, a.stock_minimo, a.existencias, FORMAT(a.precio_unitario,2) AS precio_unitario, b.descripcion_corta AS descripcion_u_medida, c.nombre as descripcion_cuenta
                 FROM cat_articulos a
                 INNER JOIN cat_unidades_almacen b ON a.id_unidad = b.id
                 INNER JOIN cat_cuentas_contables c ON a.id_cuenta = c.id
@@ -72,7 +72,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
             SQL SECURITY DEFINER
             BEGIN
                 Select a.id, a.clave, a.descripcion, a.estatus, a.stock_minimo, a.stock_maximo,
-                        a.existencias, FORMAT(a.precio_unitario,2) AS precio_unitario, b.nombre as descripcion_cuenta, c.descripcion AS descripcion_u_medida
+                        a.existencias, FORMAT(a.precio_unitario,2) AS precio_unitario, b.nombre as descripcion_cuenta, c.descripcion_corta AS descripcion_u_medida
                 from cat_articulos a
                 inner join cat_cuentas_contables b on b.id = a.id_cuenta
                 inner join cat_unidades_almacen c on c.id = a.id_unidad
@@ -94,7 +94,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
             SQL SECURITY DEFINER
             BEGIN
                 Select a.id, a.clave, a.descripcion, a.estatus, a.stock_minimo,
-                        a.existencias, FORMAT(a.precio_unitario,2) AS precio_unitario, b.nombre as descripcion_cuenta, c.descripcion AS descripcion_u_medida
+                        a.existencias, FORMAT(a.precio_unitario,2) AS precio_unitario, b.nombre as descripcion_cuenta, c.descripcion_corta AS descripcion_u_medida
                 from cat_articulos a
                 INNER JOIN cat_cuentas_contables b ON b.id = a.id_cuenta
                 INNER JOIN cat_unidades_almacen c ON c.id = a.id_unidad
@@ -127,7 +127,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
                 INSERT INTO cat_articulos (clave, fecha_baja, descripcion, estatus, stock_minimo, stock_maximo, existencias, precio_unitario, id_cuenta, id_unidad, created_at)
                     values (clave, CURDATE(), descripcion, estatus, stock_minimo, stock_maximo, existencias, precio_unitario,
                     (SELECT cat_cuentas_contables.id FROM cat_cuentas_contables WHERE cat_cuentas_contables.nombre LIKE grupo),
-                    (SELECT cat_unidades_almacen.id FROM cat_unidades_almacen WHERE cat_unidades_almacen.descripcion LIKE unidad),
+                    (SELECT cat_unidades_almacen.id FROM cat_unidades_almacen WHERE cat_unidades_almacen.descripcion_corta LIKE unidad),
                     NOW());
             END
         ');
@@ -156,7 +156,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
                 SET descripcion = descripcion, estatus = estatus, existencias = existencias, precio_unitario = precio_unitario,
                 stock_minimo=stock_minimo,
                 id_cuenta = (SELECT cat_cuentas_contables.id FROM cat_cuentas_contables WHERE cat_cuentas_contables.nombre LIKE grupo),
-                id_unidad = (SELECT cat_unidades_almacen.id FROM cat_unidades_almacen WHERE cat_unidades_almacen.descripcion LIKE unidad),
+                id_unidad = (SELECT cat_unidades_almacen.id FROM cat_unidades_almacen WHERE cat_unidades_almacen.descripcion_corta LIKE unidad),
                 updated_at = NOW()
                 WHERE cat_articulos.clave = clave;
             END
@@ -835,7 +835,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
                 SET @periodo := (SELECT c_pedido_consumo.id_periodo FROM c_pedido_consumo WHERE c_pedido_consumo.folio = folio AND c_pedido_consumo.fecha_movimiento = fecha);
 
                 IF @tipo_vale = 1 THEN
-                    SELECT articulo.clave AS "CODIF.", articulo.descripcion AS "DESCRIPCION", unidad.descripcion AS "UNIDAD", pedido.cantidad AS "CANT.", articulo.precio_unitario AS "PRECIO"
+                    SELECT articulo.clave AS "CODIF.", articulo.descripcion AS "DESCRIPCION", unidad.descripcion_corta AS "UNIDAD", pedido.cantidad AS "CANT.", articulo.precio_unitario AS "PRECIO"
                     FROM cat_articulos articulo
                     INNER JOIN d_pedido_consumo pedido ON pedido.id_articulo = articulo.id
                     INNER JOIN cat_unidades_almacen unidad ON unidad.id = articulo.id_unidad
@@ -919,7 +919,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
 
                         IF @condicion3 = 1 THEN
                             SELECT cuenta.sscta AS "PARTIDA", cuenta.nombre AS "NOMBRE" ,articulo.clave AS codificacion, articulo.descripcion AS descripcion, consumo.folio AS folio,
-                                unidad.descripcion AS unidad, detalle.cantidad AS cantidad, FORMAT(articulo.precio_unitario, 2) AS costo,
+                                unidad.descripcion_corta AS unidad, detalle.cantidad AS cantidad, FORMAT(articulo.precio_unitario, 2) AS costo,
                                 FORMAT(detalle.cantidad * articulo.precio_unitario, 2) AS importe
                             FROM consumos consumo
                             INNER JOIN detalles detalle ON detalle.id_consumo = consumo.id_consumo
@@ -1066,7 +1066,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
             SQL SECURITY DEFINER
             BEGIN
                 SELECT DISTINCT(partidas.sscta) AS "SSCTA", partidas.nombre AS "PARTIDA", articulos.clave AS "CODIFICACION", articulos.descripcion AS "DESCRIPCION",
-                    unidades.descripcion AS "UNIDAD",
+                    unidades.descripcion_corta AS "UNIDAD",
 					  IFNULL((SELECT CASE
 					  	WHEN mes = MONTH(NOW()) AND anio = YEAR(NOW()) THEN (SELECT articulos.existencias)
 					  	ELSE (SELECT inventa.existencias FROM inventario_inicial_final inventa INNER JOIN cat_articulos artis ON inventa.id_articulo = artis.id
@@ -1125,7 +1125,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
             BEGIN
 
                 SELECT DISTINCT(partidas.sscta) AS "SSCTA", partidas.nombre AS "PARTIDA", articulos.clave AS "CODIFICACION", articulos.descripcion AS "DESCRIPCION",
-                    unidades.descripcion AS "UNIDAD",
+                    unidades.descripcion_corta AS "UNIDAD",
 					IFNULL((SELECT CASE
 					    WHEN mes = MONTH(NOW()) AND anio = YEAR(NOW()) THEN (SELECT articulos.existencias)
 					    ELSE (SELECT inventa.existencias FROM inventario_inicial_final inventa INNER JOIN cat_articulos artis ON inventa.id_articulo = artis.id
@@ -1186,7 +1186,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
                 FROM
                 (
                     SELECT cat_cuentas_contables.sscta AS sscta, cat_cuentas_contables.nombre AS partida, cat_articulos.clave AS cod, cat_articulos.descripcion AS descripcion,
-                        cat_unidades_almacen.descripcion AS unidad
+                        cat_unidades_almacen.descripcion_corta AS unidad
                     FROM cat_articulos
                     INNER JOIN cat_unidades_almacen ON cat_articulos.id_unidad = cat_unidades_almacen.id
                     INNER JOIN cat_cuentas_contables ON cat_cuentas_contables.id = cat_articulos.id_cuenta
@@ -1575,10 +1575,10 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
                     END IF;
                 END WHILE myloop;
 
-                    SELECT DISTINCT(tb1.clave) AS "CODIF.", tb1.descripcion AS "DESCRIPCION", tb1.descripcion AS "UNIDAD", tb2.ene AS "ENE.", tb3.feb AS "FEB", tb4.mar AS "MAR", tb5.abr AS "ABR",
+                    SELECT DISTINCT(tb1.clave) AS "CODIF.", tb1.descripcion AS "DESCRIPCION", tb1.descripcion_corta AS "UNIDAD", tb2.ene AS "ENE.", tb3.feb AS "FEB", tb4.mar AS "MAR", tb5.abr AS "ABR",
                     	tb6.may AS "MAY", tb7.jun AS "JUN", tb8.jul AS "JUL", tb9.agos AS "AGOS", tb10.sept AS "SEPT", tb11.octu AS "OCT", tb12.nov AS "NOV", tb13.dic AS "DIC", tb14.total AS "TOTAL"
                     FROM (
-						  	SELECT articulo.clave AS clave, articulo.descripcion AS descripcion, unidad.descripcion AS unidad
+						  	SELECT articulo.clave AS clave, articulo.descripcion AS descripcion, unidad.descripcion_corta AS unidad
 						  	FROM cat_articulos articulo
 	                  INNER JOIN cat_unidades_almacen unidad ON unidad.id = articulo.id_unidad
 	                  INNER JOIN detalles detalle ON detalle.id_articulo = articulo.id
@@ -1817,7 +1817,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
             BEGIN
                 SET @periodo := (SELECT id_periodo FROM periodos WHERE periodos.no_mes = mes AND periodos.anio = anio);
 
-                SELECT articulo.clave AS "COD.", articulo.descripcion AS "DESCRIPCION", consumo.folio AS "VALE", unidad.descripcion AS "UNIDAD",
+                SELECT articulo.clave AS "COD.", articulo.descripcion AS "DESCRIPCION", consumo.folio AS "VALE", unidad.descripcion_corta AS "UNIDAD",
                         detalle.cantidad AS "CANT.", FORMAT(articulo.precio_unitario,2) AS "COSTO UNIT.", FORMAT((detalle.cantidad * articulo.precio_unitario),2) AS "IMPORTE",
                         (SELECT cat_oficinas.descripcion FROM cat_oficinas WHERE cat_oficinas.oficina = 0 AND cat_oficinas.ubpp = (SELECT cat_oficinas.ubpp FROM cat_oficinas
                                 WHERE consumo.id_oficina = cat_oficinas.id)) AS "DEPARTAMENTO",
@@ -1866,7 +1866,7 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
 					  	FROM cat_cuentas_contables
 					  )tb1 INNER JOIN
 					  (
-					  	SELECT DISTINCT(articulo.clave) AS clave, articulo.id_cuenta AS cod, articulo.descripcion AS descripcion, unidad.descripcion AS unidad,
+					  	SELECT DISTINCT(articulo.clave) AS clave, articulo.id_cuenta AS cod, articulo.descripcion AS descripcion, unidad.descripcion_corta AS unidad,
 					  		IFNULL((SELECT CASE
 							  	WHEN mes = MONTH(NOW()) AND anio = YEAR(NOW()) THEN (SELECT arti.existencias FROM cat_articulos arti WHERE arti.id = articulo.id)
 							  	ELSE (SELECT inven.existencias FROM inventario_inicial_final inven INNER JOIN cat_articulos ON cat_articulos.id = inven.id_articulo
