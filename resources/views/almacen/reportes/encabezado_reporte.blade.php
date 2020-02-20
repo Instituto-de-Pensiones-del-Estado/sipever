@@ -95,6 +95,7 @@
       </thead>
         @yield('content')
       </table>
+    </div>
       @if($tipo == 'poliza')
       <div style="margin-top: 15%; font-size: 12px; text-align: center; display: block;">
           <table class="table" style="text-align: center;">
@@ -119,6 +120,5 @@
           </table>
       </div>
       @endif
-    </div>
   </body>
 </html>

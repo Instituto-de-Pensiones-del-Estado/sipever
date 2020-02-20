@@ -81,6 +81,10 @@ class ReporteController extends Controller
         $papel = null;
         $orientacion= null;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> bf8040a2515d05b7b3942d9adcd9ff1a66308a39
         if($query){
             dd('Haciendo la query');
             //Hacemos un binding de los parámetros, así protegemos nuestra
@@ -106,7 +110,10 @@ class ReporteController extends Controller
             }
         }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> bf8040a2515d05b7b3942d9adcd9ff1a66308a39
         date_default_timezone_set('America/Mexico_City');
         $fecha_nombre=date("Ymd");
         $hora_nombre=date("Hi");
@@ -140,6 +147,18 @@ class ReporteController extends Controller
             $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'INV. FIN'];
             $papel = 'letter';
             $orientacion='portrait';
+
+            $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')->get();
+            $articulos = DB::table('cat_articulos')
+                            ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                            ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                            ->where('existencias','>',0)
+                            ->get();
+            //dd($articulos);
+            
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
+
+
         }elseif ($compAlmacen == "checked"){
             $mensaje = 'Reporte de compras de almacén general';
             $nombre_archivo="REPCOMPALM";
@@ -158,10 +177,11 @@ class ReporteController extends Controller
                       ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
                       ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'compras.no_factura', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal', 'cat_articulos.id_cuenta')
                       ->get();
-            //dd($cuenta); 
+            //dd($articulos); 
 
             $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
             
+
             
         }elseif ($existencias == "checked"){
             $mensaje = 'Reporte final de existencias';
@@ -214,8 +234,12 @@ class ReporteController extends Controller
             $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
         }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> bf8040a2515d05b7b3942d9adcd9ff1a66308a39
         return $pdf->stream($nombre_archivo);
+       
     }
 
     /**
