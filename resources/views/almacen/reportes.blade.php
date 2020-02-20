@@ -76,6 +76,12 @@
                             </label>
                         </div>
                         <div class="form-check" style="display: flex;">
+                            <label class="check-container">Reporte compras de almacén
+                              <input type="checkbox" class="checkReporte" type="checkbox" name="compAlmacen" value="" id="reporteCompAlmacen">
+                              <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="form-check" style="display: flex;">
                             <label class="check-container">Reporte de consumos por departamento
                               <input type="checkbox" class="checkReporte" type="checkbox" name="consDepto" value="" id="reporteConsDepto">
                               <span class="checkmark"></span>

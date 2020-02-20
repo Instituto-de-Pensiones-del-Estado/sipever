@@ -50,6 +50,7 @@ class ReporteController extends Controller
         $validConsumo = $request->input('validConsumo');
         $consDepto = $request->input('consDepto');
         $auxAlmacen = $request->input('auxAlmacen');
+        $compAlmacen = $request->input('compAlmacen');
         $consArticulo = $request->input('consArticulo');
         $existencias = $request->input('existencias');
         $compArticulo = $request->input('compArticulo');
