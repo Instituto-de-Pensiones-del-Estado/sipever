@@ -8,36 +8,28 @@
 </style>
 @extends('almacen.reportes.encabezado_reporte')
 @section('content')
-
-
-    <table class="tabla_datos">
-    @foreach ($consulta as $object)
+@foreach ($partidas as $itemPartida)
+<tbody>
     <tr>
+    <th>Partida:</th>
+    <th scope="row">{{$itemPartida->sscta}}</th>
+    <td colspan="4">{{$itemPartida->nombre}}</td>
+    </tr> 
+    @foreach ($articulos as $itemArticulo)
+        @if ($itemArticulo->id_cuenta == $itemPartida->id)
+        <tr>
+            <th scope="row"> {{$itemArticulo->clave}} </th>
+            <th>{{$itemArticulo->descripcion}}</th>
+            <th>{{$itemArticulo->no_factura}}</th>
+            <th>{{$itemArticulo->descripcion_corta}}</th>
+            <th>{{$itemArticulo->cantidad}}</th>
+            <th>{{$itemArticulo->precio_unitario}}</th>
+            <th>{{$itemArticulo->subtotal}}</th>
+        </tr>
 
-        <td>{{ $object->sscta }}</td>
-
-        <td>{{ $object->nombre }}</td>
-
-        <td>{{ $object->clave }}</td>
-
-        <td>{{ $object->descripcion }}</td>
-
-        <td>{{ $object->no_factura }}</td>
-
-        <td>{{ $object->descripcion_corta }}</td>
-
-        <td>{{ $object->cantidad }}</td>
-
-        <td>{{ $object->precio_unitario }}</td>
-
-        <td>{{ $object->subtotal }}</td>
-
-        <br>
-
-    </tr>
+        @endif
     @endforeach
-    
-    </table>
-
+</tbody>
+@endforeach
 @endsection
 
