@@ -81,10 +81,6 @@ class ReporteController extends Controller
         $papel = null;
         $orientacion= null;
 
-<<<<<<< HEAD
-=======
-
->>>>>>> bf8040a2515d05b7b3942d9adcd9ff1a66308a39
         if($query){
             dd('Haciendo la query');
             //Hacemos un binding de los parámetros, así protegemos nuestra
@@ -110,10 +106,6 @@ class ReporteController extends Controller
             }
         }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> bf8040a2515d05b7b3942d9adcd9ff1a66308a39
         date_default_timezone_set('America/Mexico_City');
         $fecha_nombre=date("Ymd");
         $hora_nombre=date("Hi");
@@ -234,10 +226,6 @@ class ReporteController extends Controller
             $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
         }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> bf8040a2515d05b7b3942d9adcd9ff1a66308a39
         return $pdf->stream($nombre_archivo);
        
     }
