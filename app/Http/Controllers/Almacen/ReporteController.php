@@ -148,11 +148,19 @@ class ReporteController extends Controller
                             ->where('existencias','>',0)
                             ->get();
             //dd($articulos);
+                       
+            if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
+            }
+
             
             $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
-           
+            //return view($ruta, compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
             
         }elseif ($existencias == "checked"){
+
             $mensaje = 'Reporte final de existencias';
             $nombre_archivo="REPFINALEXIST";
             $ruta = "almacen.reportes.reporte_final_existencias";
@@ -181,8 +189,6 @@ class ReporteController extends Controller
             $mensaje = 'Concentrado de existencias por artículo';
             $nombre_archivo="CONCENTEXISTART";
             $ruta = "almacen.reportes.existencias_p_articulo";
-            //Preparamos la llamada al procedimiento remoto
-            //$query = $db->prepare('CALL sp_concentrado_existencias(?,?,?)');
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
@@ -197,11 +203,6 @@ class ReporteController extends Controller
            return back()->with('warning',"Porfavor seleccione un tipo de reporte");
         }
 
-        if($periodo){
-            $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
-        }else{
-            $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
-        }
 
         return $pdf->stream($nombre_archivo);
        

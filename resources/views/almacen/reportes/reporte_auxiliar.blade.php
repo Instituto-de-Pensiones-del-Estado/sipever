@@ -15,6 +15,8 @@
             <th>{{$itemArticulo->descripcion_corta}}</th>
             <th>{{$itemArticulo->existencias}}</th>
             <th>{{$itemArticulo->precio_unitario}}</th>
+            <th>{{$itemArticulo->precio_unitario * $itemArticulo->existencias}}</th>
+            <th>${{$itemArticulo->precio_unitario * $itemArticulo->existencias}}</th>
         </tr>
 
         @endif
