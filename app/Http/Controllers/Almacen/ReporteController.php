@@ -149,12 +149,6 @@ class ReporteController extends Controller
                             ->get();
             //dd($articulos);
                        
-            if($periodo){
-                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
-            }else{
-                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
-            }
-
             
             $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
             //return view($ruta, compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
@@ -201,6 +195,12 @@ class ReporteController extends Controller
             $orientacion='landscape';
         }else{
            return back()->with('warning',"Porfavor seleccione un tipo de reporte");
+        }
+
+        if($periodo){
+            $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+        }else{
+            $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
         }
 
 

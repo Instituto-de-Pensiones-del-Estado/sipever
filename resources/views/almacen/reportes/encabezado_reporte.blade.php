@@ -67,6 +67,7 @@
         border-bottom: 1px solid #000;
       } 
     </style>
+<<<<<<< HEAD
    <header>
     <div class="header" style="text-align: center;">
       <div class="row" style="height: 65px;">
@@ -79,6 +80,21 @@
         <div style="margin-left: 75%;">
           <p style="font-size: 10px;font-weight: bold; margin:0; padding:0;">Fecha: {{$fecha}}</p>
           <p style="font-size: 10px; font-weight: bold;">Hora: {{$hora}}</p>
+=======
+    <header>
+      <div class="header" style="text-align: center;">
+        <div class="row" style="height: 65px;">
+        <img src="{{$logo_b64}}"  style="width: 40%; padding:2px; float: center;">
+          <div style="margin-left:10%;">
+            <h5>Instituto de pensiones del Estado</h5>
+            <p style="font-size: 13px;font-weight: bold; margin:0; padding:0;">Subdirección Administrativa</p>
+            <p style="font-size: 13px;font-weight: bold; margin:0; padding:0;">Almacén general</p>
+          </div>
+          <div style="margin-left: 75%;">
+            <p style="font-size: 10px;font-weight: bold; margin:0; padding:0;">Fecha: {{$fecha}}</p>
+            <p style="font-size: 10px; font-weight: bold;">Hora: {{$hora}}</p>
+          </div>
+>>>>>>> 2cde79b7fed6f594a5d8f7195e6ca03bb3c473ca
         </div>
       </div>
         <h4 style="word-wrap: break-word; width: 50%; margin-left: 27%; padding:10px; ">{{$mensaje}}</h4>
