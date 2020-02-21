@@ -70,7 +70,7 @@
     <header>
       <div class="header" style="text-align: center;">
         <div class="row" style="height: 65px;">
-          <img src="{{$logo_b64}}"  style="width: 40%; padding:2px; float: center;">
+        <img src="{{$logo_b64}}"  style="width: 40%; padding:2px; float: center;">
           <div style="margin-left:10%;">
             <h5>Instituto de pensiones del Estado</h5>
             <p style="font-size: 13px;font-weight: bold; margin:0; padding:0;">Subdirección Administrativa</p>

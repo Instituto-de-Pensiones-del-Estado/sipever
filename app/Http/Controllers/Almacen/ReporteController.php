@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Almacen;
 
 use Illuminate\Http\Request;
 
+use App\Model\Catalogos\Articulo;
 use App\Http\Controllers\Controller;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Illuminate\Database\QueryException;
@@ -111,28 +112,54 @@ class ReporteController extends Controller
         $hora_nombre=date("Hi");
         $nombre_archivo = "{$fecha_nombre}_{$nombre_archivo}_{$hora_nombre}";
         $tipo = 'reporte';
-        $archivo = file_get_contents(public_path("/img_system/banner_principal.png"));
+        $archivo = file_get_contents(public_path("/img_system/low_res_logo.png"));
         $imagen_b64 = base64_encode($archivo);
         $logo_b64 = "data:image/png;base64,{$imagen_b64}";
         $fecha = date("d/M/Y");
         $hora = date("h:i a");
         $pdf = null;
-
+        /**
+         * REPORTE DE VALIDACIÓN DE CONSUMOS
+         */
         if ($validConsumo == "checked"){
             $mensaje = 'Reporte para validación de consumos';
             $nombre_archivo="REPVALIDCONS";
             $ruta = "almacen.reportes.reporte_validacion_cons";
+            $headers = ['FOLIO.','UBPP', 'CLAVE', 'DESCRIPCIÓN', 'UNIDAD', 'CANT.', 'COSTO', 'IMPORTE'];
             $papel = 'letter';
             $orientacion='portrait';
-            $headers = ['FOLIO.','CUENTA CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'CANT.', 'COSTO', 'IMPORTE'];
-        }elseif ($consDepto == "checked") {
+            $consumos = DB :: table('consumos')
+                ->join('periodos', 'consumos.id_periodo', "=", 'periodos.id_periodo')
+                ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->join('cat_oficinas', 'consumos.id_oficina', '=', 'cat_oficinas.id')
+                ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->select('folio','ubpp','clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal')
+                ->where('periodos.estatus', '=', 1)
+                ->get();
+            //$articulo = Articulo::where('existencias', '>', 0)->get();
+            //dd($articulo);
+            //dd($periodo);    
+            //dd($consumos);
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos'))->setPaper($papel, $orientacion);
+            
+        }
+        /**
+         * REPORTE DE CONSUMOS POR DEPARTAMENTO
+         */
+        elseif ($consDepto == "checked") {
             $mensaje = 'Reporte de consumos por departamento';
             $nombre_archivo="REPCONSDEPTO";
             $ruta = "almacen.reportes.reporte_consumos_depto";
             $headers=['FOLIO','CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE'];
             $papel = 'letter';
             $orientacion='landscape';
-        }elseif ($auxAlmacen == "checked"){
+            
+        }
+        /**
+         * REPORTE AUXILIAR DE ALMACÉN GENERAL
+         */
+        elseif ($auxAlmacen == "checked"){
             $mensaje = 'Reporte auxiliar de almacén general';
             $nombre_archivo="REPAUXALM";
             $ruta = "almacen.reportes.reporte_auxiliar";
@@ -151,7 +178,11 @@ class ReporteController extends Controller
             $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
 
 
-        }elseif ($compAlmacen == "checked"){
+        }
+        /**
+         * REPORTE DE COMPRAS DE ALMACÉN GENERAL
+         */
+        elseif ($compAlmacen == "checked"){
             $mensaje = 'Reporte de compras de almacén general';
             $nombre_archivo="REPCOMPALM";
             $ruta = "almacen.reportes.reporte_compras";
@@ -171,25 +202,34 @@ class ReporteController extends Controller
                       ->get();
             //dd($articulos); 
 
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
-            
-
-            
-        }elseif ($existencias == "checked"){
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);      
+        }
+        /**
+         * REPORTE FINAL DE EXISTENCIAS
+         */
+        elseif ($existencias == "checked"){
             $mensaje = 'Reporte final de existencias';
             $nombre_archivo="REPFINALEXIST";
             $ruta = "almacen.reportes.reporte_final_existencias";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'CANT.', 'COSTO', 'IMPORTE'];
             $papel = 'letter';
             $orientacion='portrait';
-        }elseif ($consArticulo == "checked"){
+        }
+        /**
+         * CONCENTRADO DE CONSUMOS POR ARTÍCULO
+         */
+        elseif ($consArticulo == "checked"){
             $mensaje = 'Concentrado de consumos por artículo';
             $nombre_archivo="CONCENTCONSARTI";
             $ruta = "almacen.reportes.cons_p_articulo";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
-        }elseif ($compArticulo == "checked"){
+        }
+        /**
+         * CONCENTRADO DE COMPRAS POR ARTÍCULO
+         */
+        elseif ($compArticulo == "checked"){
             $mensaje = 'Concentrado de compras por artículo';
             $nombre_archivo="CONCENTCOMPART";
             $ruta = "almacen.reportes.compras_p_articulo";
@@ -200,7 +240,11 @@ class ReporteController extends Controller
             }
             $papel = 'legal';
             $orientacion='landscape';
-        }elseif ($existArticulo == "checked"){
+        }
+        /**
+         * CONCENTRADO DE EXISTENCIAS POR ARTÍCULO
+         */
+        elseif ($existArticulo == "checked"){
             $mensaje = 'Concentrado de existencias por artículo';
             $nombre_archivo="CONCENTEXISTART";
             $ruta = "almacen.reportes.existencias_p_articulo";
@@ -209,7 +253,11 @@ class ReporteController extends Controller
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
-        }elseif ($consAreaArt == "checked"){
+        }
+        /**
+         * CONCENTRADO DE CONSUMOS POR ÁREA Y ARTÍCULO
+         */
+        elseif ($consAreaArt == "checked"){
             $mensaje = 'Concentrado de consumos por área y artículo';
             $nombre_archivo="CONCENTCONSAART";
             $ruta = "almacen.reportes.consumos_p_area";
