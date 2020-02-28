@@ -3,29 +3,32 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Reporte generado</title>
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css')}}">
   </head>
+  <!-- Los márgenes de la página se configuran de esa manera para evitar que el contenido se sobreponga al membrete -->
   <body>
-    <style type="text/css" media="screen">
-      @page { margin: 10px 25px; }
+    <!--
+      <style type="text/css" media="screen">
+      @page { margin: 100px 25px; }
       body{
         font-family: Panton;
         src:url('{{public_path('fonts/Panton-Regular.otf')}}');
       }
       header {
         position: fixed;
-        top: 0px;
+        top: -106px;
         left: 0px;
         right: 0px;
       }
       .hijo {
-        margin-top: 20%;
+        margin-top: 0%;
         page-break-after: always;
       }
       .hijo:last-child { page-break-after: never; }
-      .header{
+      /*.header{
           border-bottom-style: solid;
           border-bottom-color: #A9ADCC;
-      }
+      }*/
       .table {
         width: 100%;
         margin-bottom: 1rem;
@@ -40,7 +43,7 @@
         font-size: 11px;
       }
       .table tbody td{
-        font-size: 11px;
+        font-size: 20px;
       }
       .table thead{
          border-bottom: 2px solid #dee2e6;
@@ -66,7 +69,7 @@
         border: 0;
         border-bottom: 1px solid #000;
       }
-    </style>
+    </style> -->
     <header>
       <div class="header" style="text-align: center;">
         <div class="row" style="height: 65px;">
@@ -77,7 +80,7 @@
             <p style="font-size: 13px;font-weight: bold; margin:0; padding:0;">Almacén general</p>
           </div>
           <div style="margin-left: 75%;">
-            <p style="font-size: 10px;font-weight: bold; margin:0; padding:0;">Fecha: {{$fecha}}</p>
+            <p style="font-size: 10px;font-weight: bold; margin:10; padding:0;">Fecha: {{$fecha}}</p>
             <p style="font-size: 10px; font-weight: bold;">Hora: {{$hora}}</p>
           </div>
         </div>
@@ -86,13 +89,6 @@
     </header>
     <div class="hijo">
       <table class="table">
-      <thead>
-        <tr>
-          @foreach($headers as $header)
-              <th style="white-space: nowrap;">{{$header}}</th>
-          @endforeach
-        </tr>
-      </thead>
         @yield('content')
       </table>
     </div>

@@ -1,5 +1,11 @@
 @extends('almacen.reportes.encabezado_reporte')
 @section('content')
+<thead>
+        <tr>
+          @foreach($headers as $header)
+              <th style="white-space: normal;">{{$header}}</th>
+          @endforeach
+        </tr>
 @foreach ($partidas as $itemPartida)
 <tbody>
     <tr>

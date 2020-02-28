@@ -12,6 +12,7 @@ use Exception;
 use File;
 use DB;
 use PDF;
+//use PDF2;
 
 class ReporteController extends Controller
 {
@@ -143,6 +144,8 @@ class ReporteController extends Controller
             //dd($consumos);
             $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos'))->setPaper($papel, $orientacion);
             
+            //Creando HTML solamente
+            //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos' ));
         }
         /**
          * REPORTE DE CONSUMOS POR DEPARTAMENTO
@@ -154,6 +157,9 @@ class ReporteController extends Controller
             $headers=['FOLIO','CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE'];
             $papel = 'letter';
             $orientacion='landscape';
+            $deptos = DB :: table('cat_oficinas')->select('ubpp', 'descripcion')->where('oficina', '=', 0)->get();
+            $partidas = DB :: table('cat_cuentas_contables')->select('id','sscta', 'nombre')->get();
+            //$consumos = DB ::
             
         }
         /**
@@ -164,8 +170,9 @@ class ReporteController extends Controller
             $nombre_archivo="REPAUXALM";
             $ruta = "almacen.reportes.reporte_auxiliar";
             $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'INV. FIN'];
+            $header = 
             $papel = 'letter';
-            $orientacion='portrait';
+            $orientacion='landscape';
 
             $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')->get();
             $articulos = DB::table('cat_articulos')
@@ -175,9 +182,15 @@ class ReporteController extends Controller
                             ->get();
             //dd($articulos);
             
+            //Usando dompdf
             $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
+            
+            //Creando HTML solamente
+            //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ));
 
-
+            //Usando laravel-snappy
+            //$pdf = PDF2:: loadView($ruta, compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
+            //return $pdf-> download('ejemplo.pdf');
         }
         /**
          * REPORTE DE COMPRAS DE ALMACÉN GENERAL
@@ -202,7 +215,15 @@ class ReporteController extends Controller
                       ->get();
             //dd($articulos); 
 
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);      
+            //Usando dompdf
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
+            
+            //Creando solamente el HTML
+            //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
+            
+            //Usando laravel-snappy
+            //$pdf = PDF2:: loadView($ruta, compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
+            //return $pdf-> download('ejemplo.pdf');
         }
         /**
          * REPORTE FINAL DE EXISTENCIAS

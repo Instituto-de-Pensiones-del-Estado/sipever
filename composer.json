@@ -13,6 +13,7 @@
         "barryvdh/laravel-dompdf": "^0.8.5",
         "doctrine/dbal": "^2.9",
         "fideloper/proxy": "^4.0",
+        "h4cc/wkhtmltopdf-i386": "0.12.x",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "^5.4.0",
