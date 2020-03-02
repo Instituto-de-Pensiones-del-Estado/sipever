@@ -142,7 +142,7 @@ class ReporteController extends Controller
             //dd($articulo);
             //dd($periodo);    
             //dd($consumos);
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos'))->setPaper($papel, $orientacion);
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos'), $pdf)->setPaper($papel, $orientacion);
             
             //Creando HTML solamente
             //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos' ));

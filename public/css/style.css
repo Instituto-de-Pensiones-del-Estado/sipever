@@ -1,49 +1,49 @@
 @page { margin: 100px 25px; }
-      body{
-        font-family: Panton;
-        src:url('{{public_path('fonts/Panton-Regular.otf')}}');
-      }
       header {
         position: fixed;
         top: -106px;
         left: 0px;
         right: 0px;
       }
+      body{
+        font-family: Panton;
+        src:url('{{public_path('fonts/Panton-Regular.otf')}}');
+      }
       .hijo {
         margin-top: 0%;
         page-break-after: always;
       }
       .hijo:last-child { page-break-after: never; }
-      /*.header{
-          border-bottom-style: solid;
-          border-bottom-color: #A9ADCC;
-      }*/
-      .table {
+      header{
+          /*border-bottom-style: solid;
+          border-bottom-color: #A9ADCC;*/
+      }
+      table {
         width: 100%;
         margin-bottom: 1rem;
         background-color: transparent;
       }
-      .table th,
-      .table td {
-        padding: 0.75rem;
+      table th,
+      table td {
+        padding: 0.10rem;
         vertical-align: top;
       }
-      .table th{
-        font-size: 11px;
+      table th{
+        font-size: 12px;
       }
-      .table tbody td{
-        font-size: 20px;
+      table tbody td{
+        font-size: 10px;
       }
-      .table thead{
+      table thead{
          border-bottom: 2px solid #dee2e6;
       }
-      .table thead th {
+      table thead th {
         vertical-align: bottom;
       }
-      .table tbody + tbody {
+      table tbody + tbody {
         border-top: 2px solid #dee2e6;
       }
-      .table .table {
+      table table {
         background-color: #fff;
       }
       .row {

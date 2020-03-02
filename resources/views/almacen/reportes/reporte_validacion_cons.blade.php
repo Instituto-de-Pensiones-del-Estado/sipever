@@ -1,13 +1,7 @@
 @extends('almacen.reportes.encabezado_reporte')
 @section('content')
-    <style>
-    thead{
-        font-size:10px;
-        border-bottom: 2px solid #dee2e6;
-        
-    }
-    </style>
-    <table>
+
+    <table>   
     <thead>
         <tr>
           @foreach($headers as $header)
@@ -15,8 +9,7 @@
           @endforeach
         </tr>
       </thead>
-    <tbody style="font-size:10px;">
-    
+    <tbody>
         @foreach ($consumos as $validConsumos)
             <tr>
                 <td scope= "row">{{$validConsumos->folio}}</td>
@@ -31,6 +24,10 @@
         @endforeach
     </tbody>
     </table>
+    <footer>
+        <!--<script type="text/php"> $PAGE_NUM = </script>-->
+        <p>Página {{$PAGE_NUM}}}}</p>
+    </footer>
 @endsection
 
 

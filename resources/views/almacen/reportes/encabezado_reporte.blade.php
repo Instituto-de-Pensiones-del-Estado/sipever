@@ -2,78 +2,18 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css')}}" media="screen">
     <title>Reporte generado</title>
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css')}}">
+    
   </head>
   <!-- Los márgenes de la página se configuran de esa manera para evitar que el contenido se sobreponga al membrete -->
   <body>
-    <!--
-      <style type="text/css" media="screen">
-      @page { margin: 100px 25px; }
-      body{
-        font-family: Panton;
-        src:url('{{public_path('fonts/Panton-Regular.otf')}}');
-      }
-      header {
-        position: fixed;
-        top: -106px;
-        left: 0px;
-        right: 0px;
-      }
-      .hijo {
-        margin-top: 0%;
-        page-break-after: always;
-      }
-      .hijo:last-child { page-break-after: never; }
-      /*.header{
-          border-bottom-style: solid;
-          border-bottom-color: #A9ADCC;
-      }*/
-      .table {
-        width: 100%;
-        margin-bottom: 1rem;
-        background-color: transparent;
-      }
-      .table th,
-      .table td {
-        padding: 0.75rem;
-        vertical-align: top;
-      }
-      .table th{
-        font-size: 11px;
-      }
-      .table tbody td{
-        font-size: 20px;
-      }
-      .table thead{
-         border-bottom: 2px solid #dee2e6;
-      }
-      .table thead th {
-        vertical-align: bottom;
-      }
-      .table tbody + tbody {
-        border-top: 2px solid #dee2e6;
-      }
-      .table .table {
-        background-color: #fff;
-      }
-      .row {
-        display: -ms-flexbox;
-        display: inline-flex;
-        -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
-        margin-right: -15px;
-        margin-left: -15px;
-      }
-      .signature {
-        border: 0;
-        border-bottom: 1px solid #000;
-      }
-    </style> -->
+
+    <!-- ENCABEZADO DE REPORTES -->
     <header>
       <div class="header" style="text-align: center;">
         <div class="row" style="height: 65px;">
-        <img src="{{$logo_b64}}"  style="width: 40%; padding:2px; float: center;">
+        <img src="{{$logo_b64}}"  style="width: 40%; padding:20px; float: center;">
           <div style="margin-left:10%;">
             <h5>Instituto de pensiones del Estado</h5>
             <p style="font-size: 13px;font-weight: bold; margin:0; padding:0;">Subdirección Administrativa</p>
@@ -87,11 +27,15 @@
           <h4 style="word-wrap: break-word; width: 50%; margin-left: 27%; padding:10px; ">{{$mensaje}}</h4>
       </div>
     </header>
-    <div class="hijo">
+    <div class="body">
       <table class="table">
         @yield('content')
       </table>
     </div>
+    <!-- TERMINA ENCABEZADO REPORTES -->
+
+
+    <!-- ENCABEZADO DE PÓLIZAS -->
       @if($tipo == 'poliza')
       <div style="margin-top: 15%; font-size: 12px; text-align: center; display: block;">
           <table class="table" style="text-align: center;">
@@ -116,5 +60,6 @@
           </table>
       </div>
       @endif
+    <!-- TERMINA ENCABEZADO DE PÓLIZAS -->
   </body>
 </html>

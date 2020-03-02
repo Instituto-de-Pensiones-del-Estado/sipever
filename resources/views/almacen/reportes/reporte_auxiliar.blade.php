@@ -11,20 +11,29 @@
     <tr>
     <th>Partida:</th>
     <th scope="row">{{$itemPartida->sscta}}</th>
-    <td colspan="4">{{$itemPartida->nombre}}</td>
+    <th colspan="4">{{$itemPartida->nombre}}</td>
     </tr> 
     @foreach ($articulos as $itemArticulo)
         @if ($itemArticulo->id_cuenta == $itemPartida->id)
         <tr>
-            <th scope="row"> {{$itemArticulo->clave}} </th>
-            <th>{{$itemArticulo->descripcion}}</th>
-            <th>{{$itemArticulo->descripcion_corta}}</th>
-            <th>{{$itemArticulo->existencias}}</th>
-            <th>{{$itemArticulo->precio_unitario}}</th>
+            <td scope="row"> {{$itemArticulo->clave}} </td>
+            <td>{{$itemArticulo->descripcion}}</td>
+            <td>{{$itemArticulo->descripcion_corta}}</td>
+            <td>{{$itemArticulo->existencias}}</td>
+            <td>{{$itemArticulo->precio_unitario}}</td>
         </tr>
 
         @endif
     @endforeach
 </tbody>
+<footer>
+    <script type="text/php">
+        if ( isset($pdf) ) {
+            $font = Font_Metrics::get_font("helvetica", "bold");
+            $pdf->page_text(72, 18, "Header: {PAGE_NUM} of {PAGE_COUNT}", $font, 6, array(0,0,0));
+        }
+    </script> 
+    
+</footer>
 @endforeach
 @endsection
