@@ -22,11 +22,12 @@
                 <td>{{$validConsumos->subtotal}}</td>
             </tr>
         @endforeach
+        <th>{{$total_consumos}} CONSUMOS</th>
+        <th>ARTÍCULOS: {{$total_articulos}}</th>
+        <th>IMPORTE TOTAL: {{$total_importe}}</th>
     </tbody>
     </table>
     <footer>
-        <!--<script type="text/php"> $PAGE_NUM = </script>-->
-        <p>Página {{$PAGE_NUM}}}}</p>
     </footer>
 @endsection
 

@@ -11,7 +11,8 @@ use Illuminate\Database\QueryException;
 use Exception;
 use File;
 use DB;
-use PDF;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 //use PDF2;
 
 class ReporteController extends Controller
@@ -138,14 +139,38 @@ class ReporteController extends Controller
                 ->select('folio','ubpp','clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal')
                 ->where('periodos.estatus', '=', 1)
                 ->get();
-            //$articulo = Articulo::where('existencias', '>', 0)->get();
-            //dd($articulo);
-            //dd($periodo);    
-            //dd($consumos);
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos'), $pdf)->setPaper($papel, $orientacion);
+            $total_consumos = DB :: table('consumos')
+                ->count('consumos.id_consumo');
+            $total_articulos = DB :: table ('detalles')
+                ->sum('detalles.cantidad');
+            $total_importe = DB :: table('detalles')
+                ->sum('detalles.subtotal');
+
+
+            /**
+             * SECCION DE PRUEBAS
+             * $articulo = Articulo::where('existencias', '>', 0)->get();
+             * dd($articulo);
+             * dd($periodo);    
+             * dd($consumos);
+             * 
+             * Creando HTML solamente
+             * return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos' ));
+             */
             
-            //Creando HTML solamente
-            //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos' ));
+
+            //Creando PDF con DOMPDF
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_articulos', 'total_importe', 'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+   
+
         }
         /**
          * REPORTE DE CONSUMOS POR DEPARTAMENTO
@@ -170,7 +195,6 @@ class ReporteController extends Controller
             $nombre_archivo="REPAUXALM";
             $ruta = "almacen.reportes.reporte_auxiliar";
             $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'INV. FIN'];
-            $header = 
             $papel = 'letter';
             $orientacion='landscape';
 
@@ -181,16 +205,21 @@ class ReporteController extends Controller
                             ->where('existencias','>',0)
                             ->get();
             //dd($articulos);
-            
-            //Usando dompdf
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
-            
+
             //Creando HTML solamente
             //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ));
 
-            //Usando laravel-snappy
-            //$pdf = PDF2:: loadView($ruta, compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
-            //return $pdf-> download('ejemplo.pdf');
+            //Creando PDF con DOMPDF
+            $pdf = new Dompdf();
+            $pdf -> setPaper($papel, $orientacion);
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'pdf', 'orientacion'));
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+
         }
         /**
          * REPORTE DE COMPRAS DE ALMACÉN GENERAL
