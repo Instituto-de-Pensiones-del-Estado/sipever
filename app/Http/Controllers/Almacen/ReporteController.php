@@ -197,11 +197,11 @@ class ReporteController extends Controller
            return back()->with('warning',"Porfavor seleccione un tipo de reporte");
         }
 
-        if($periodo){
-            $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
-        }else{
-            $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
-        }
+         if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
+            }
 
 
         return $pdf->stream($nombre_archivo);
