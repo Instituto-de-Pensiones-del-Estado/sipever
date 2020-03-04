@@ -22,9 +22,9 @@
                 <td>{{$validConsumos->subtotal}}</td>
             </tr>
         @endforeach
-        <th>{{$total_consumos}} CONSUMOS</th>
-        <th>ARTÍCULOS: {{$total_articulos}}</th>
-        <th>IMPORTE TOTAL: {{$total_importe}}</th>
+        <th colspan="2">{{$total_consumos}} CONSUMOS</th>
+        <th colspan="2">ARTÍCULOS: {{$total_articulos}}</th>
+        <th colspan="4">IMPORTE TOTAL: {{$total_importe}}</th>
     </tbody>
     </table>
     <footer>

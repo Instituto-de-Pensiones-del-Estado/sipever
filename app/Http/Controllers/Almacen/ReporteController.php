@@ -130,13 +130,23 @@ class ReporteController extends Controller
             $headers = ['FOLIO.','UBPP', 'CLAVE', 'DESCRIPCIÓN', 'UNIDAD', 'CANT.', 'COSTO', 'IMPORTE'];
             $papel = 'letter';
             $orientacion='portrait';
+            /**
+             * CONSULTAS A LA BD
+             * 
+             * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
+             * descripción, unidad de medida, cantidad, costo unitario e importe.
+             * @total_consumos: Suma del total de consumos/vales en un período.
+             * @total_articulos: Cantidad total de artículos en un período.
+             * @total_importe: Importe total de los consumos.
+             */
             $consumos = DB :: table('consumos')
                 ->join('periodos', 'consumos.id_periodo', "=", 'periodos.id_periodo')
                 ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
                 ->join('cat_oficinas', 'consumos.id_oficina', '=', 'cat_oficinas.id')
                 ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
                 ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                ->select('folio','ubpp','clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal')
+                ->select('folio','ubpp','clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario',
+                     'detalles.subtotal', 'cat_articulos.id_cuenta')
                 ->where('periodos.estatus', '=', 1)
                 ->get();
             $total_consumos = DB :: table('consumos')
@@ -149,19 +159,15 @@ class ReporteController extends Controller
 
             /**
              * SECCION DE PRUEBAS
-             * $articulo = Articulo::where('existencias', '>', 0)->get();
-             * dd($articulo);
-             * dd($periodo);    
-             * dd($consumos);
-             * 
              * Creando HTML solamente
              * return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos' ));
              */
             
-
+            //dd($consumos);
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_articulos', 'total_importe', 'pdf', 'orientacion'));
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_articulos', 'total_importe', 'pdf',
+                                         'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
@@ -182,9 +188,47 @@ class ReporteController extends Controller
             $headers=['FOLIO','CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE'];
             $papel = 'letter';
             $orientacion='landscape';
+            /**
+             * CONSULTAS A LA BD
+             * 
+             * @deptos: Departamentos centrales del IPE
+             * @partidas: Partidas de artículos que existen en el IPE
+             * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
+             * descripción, unidad de medida, cantidad, costo unitario e importe.
+             * @total_consumos: Suma del total de consumos/vales en un período.
+             * @total_articulos: Cantidad total de artículos en un período.
+             * @total_importe: Importe total de los consumos.
+             */
             $deptos = DB :: table('cat_oficinas')->select('ubpp', 'descripcion')->where('oficina', '=', 0)->get();
             $partidas = DB :: table('cat_cuentas_contables')->select('id','sscta', 'nombre')->get();
-            //$consumos = DB ::
+            $consumos = DB :: table('consumos')
+                ->join('periodos', 'consumos.id_periodo', "=", 'periodos.id_periodo')
+                ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->join('cat_oficinas', 'consumos.id_oficina', '=', 'cat_oficinas.id')
+                ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->select('folio','ubpp','clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 
+                        'detalles.subtotal', 'cat_articulos.id_cuenta')
+                ->where('periodos.estatus', '=', 1)
+                ->get();
+            $total_consumos = DB :: table('consumos')
+                ->count('consumos.id_consumo');
+            $total_articulos = DB :: table ('detalles')
+                ->sum('detalles.cantidad');
+            $total_importe = DB :: table('detalles')
+                ->sum('detalles.subtotal');
+            
+            //Creando PDF con DOMPDF
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_articulos',
+                                         'total_importe', 'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
             
         }
         /**
