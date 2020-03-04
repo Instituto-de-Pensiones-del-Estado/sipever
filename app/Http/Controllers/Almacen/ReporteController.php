@@ -12,7 +12,6 @@ use Exception;
 use File;
 use DB;
 use PDF;
-//use PDF2;
 
 class ReporteController extends Controller
 {
@@ -265,6 +264,8 @@ class ReporteController extends Controller
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
+            $articulos = DB::table('c_pedido_consumo')
+                    ->join('cat_articulos', 'c_pedido_consumo.')
         }
         /**
          * CONCENTRADO DE COMPRAS POR ARTÍCULO

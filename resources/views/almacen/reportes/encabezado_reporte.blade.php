@@ -62,4 +62,42 @@
       @endif
     <!-- TERMINA ENCABEZADO DE PÓLIZAS -->
   </body>
+
+  <!-- PIE DE PÁGINA -->
+  <footer>
+  @if ($orientacion == "landscape")
+    <script type="text/php">
+        if(isset($pdf)){
+            $pdf->page_script('
+                if($PAGE_COUNT > 1){
+                    $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                    $size = 10;
+                    $y = 580;
+                    $x = 700;
+                    $pageText = "Página " . $PAGE_NUM . " de " . $PAGE_COUNT;               
+                    $pdf->text($x, $y, $pageText, $font, $size);
+                }
+              ');
+        }
+    </script>
+  @endif
+  @if ($orientacion == "portrait")
+  <script type="text/php">
+        if(isset($pdf)){
+            $pdf->page_script('
+                if($PAGE_COUNT > 1){
+                    $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                    $size = 10;
+                    $y = 760;
+                    $x = 520;
+                    $pageText = "Página " . $PAGE_NUM . " de " . $PAGE_COUNT;               
+                    $pdf->text($x, $y, $pageText, $font, $size);
+                }
+              ');
+        }
+  @endif
+    </script>
+  </footer>
+<!-- TERMINA PIE DE PÁGINA -->
+
 </html>
