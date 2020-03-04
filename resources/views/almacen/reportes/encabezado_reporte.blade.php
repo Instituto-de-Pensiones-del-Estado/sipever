@@ -24,11 +24,11 @@
             <p style="font-size: 10px; font-weight: bold;">Hora: {{$hora}}</p>
           </div>
         </div>
-          <h4 style="word-wrap: break-word; width: 50%; margin-left: 27%; padding:10px; ">{{$mensaje}}</h4>
+          <h4 style="word-wrap: break-word; width: 50%; margin-left: 27%; padding-bottom: 10px; ">{{$mensaje}}</h4>
       </div>
     </header>
     <div class="body">
-      <table class="table">
+      <table style="padding-top: 10px; margin-top: 20px; " class="table">
         @yield('content')
       </table>
     </div>
