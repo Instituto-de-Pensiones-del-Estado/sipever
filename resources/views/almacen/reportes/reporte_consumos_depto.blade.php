@@ -10,7 +10,6 @@
       </thead>
     <tbody>
     @foreach ($deptos as $departamentos)
-        
             <tr>
                 <th colspan="4">ÁREA: {{$departamentos->ubpp}} {{$departamentos->descripcion}}</th>
             </tr>
