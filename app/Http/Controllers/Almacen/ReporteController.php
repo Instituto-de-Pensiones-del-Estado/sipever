@@ -199,7 +199,11 @@ class ReporteController extends Controller
              * @total_articulos: Cantidad total de artículos en un período.
              * @total_importe: Importe total de los consumos.
              */
-            $deptos = DB :: table('cat_oficinas')->select('ubpp', 'descripcion')->where('oficina', '=', 0)->get();
+            $deptos = DB :: table('cat_oficinas')
+                ->join('consumos')
+                ->select('ubpp', 'descripcion')
+                ->where('oficina', '=', 0)
+                ->get();
             $partidas = DB :: table('cat_cuentas_contables')->select('id','sscta', 'nombre')->get();
             $consumos = DB :: table('consumos')
                 ->join('periodos', 'consumos.id_periodo', "=", 'periodos.id_periodo')
@@ -217,7 +221,7 @@ class ReporteController extends Controller
                 ->sum('detalles.cantidad');
             $total_importe = DB :: table('detalles')
                 ->sum('detalles.subtotal');
-            
+            //dd($consumos);
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
             $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_articulos',
