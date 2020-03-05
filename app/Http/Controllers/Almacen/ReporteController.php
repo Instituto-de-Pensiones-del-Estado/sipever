@@ -11,9 +11,7 @@ use Illuminate\Database\QueryException;
 use Exception;
 use File;
 use DB;
-use Dompdf\Dompdf;
-use Dompdf\Options;
-//use PDF2;
+use PDF;
 
 class ReporteController extends Controller
 {
@@ -130,53 +128,23 @@ class ReporteController extends Controller
             $headers = ['FOLIO.','UBPP', 'CLAVE', 'DESCRIPCIÓN', 'UNIDAD', 'CANT.', 'COSTO', 'IMPORTE'];
             $papel = 'letter';
             $orientacion='portrait';
-            /**
-             * CONSULTAS A LA BD
-             * 
-             * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
-             * descripción, unidad de medida, cantidad, costo unitario e importe.
-             * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_articulos: Cantidad total de artículos en un período.
-             * @total_importe: Importe total de los consumos.
-             */
             $consumos = DB :: table('consumos')
                 ->join('periodos', 'consumos.id_periodo', "=", 'periodos.id_periodo')
                 ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
                 ->join('cat_oficinas', 'consumos.id_oficina', '=', 'cat_oficinas.id')
                 ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
                 ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                ->select('folio','ubpp','clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario',
-                     'detalles.subtotal', 'cat_articulos.id_cuenta')
+                ->select('folio','ubpp','clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal')
                 ->where('periodos.estatus', '=', 1)
                 ->get();
-            $total_consumos = DB :: table('consumos')
-                ->count('consumos.id_consumo');
-            $total_articulos = DB :: table ('detalles')
-                ->sum('detalles.cantidad');
-            $total_importe = DB :: table('detalles')
-                ->sum('detalles.subtotal');
-
-
-            /**
-             * SECCION DE PRUEBAS
-             * Creando HTML solamente
-             * return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos' ));
-             */
-            
+            //$articulo = Articulo::where('existencias', '>', 0)->get();
+            //dd($articulo);
+            //dd($periodo);    
             //dd($consumos);
-            //Creando PDF con DOMPDF
-            $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_articulos', 'total_importe', 'pdf',
-                                         'orientacion'));
-            $pdf -> setPaper($papel, $orientacion);
-            $options = new Options();
-            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
-            $pdf -> setOptions($options);
-            $pdf -> loadHtml($html);
-            $pdf -> render();
-            return $pdf->stream($nombre_archivo.".pdf");
-   
-
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos'), $pdf)->setPaper($papel, $orientacion);
+            
+            //Creando HTML solamente
+            //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos' ));
         }
         /**
          * REPORTE DE CONSUMOS POR DEPARTAMENTO
@@ -253,21 +221,15 @@ class ReporteController extends Controller
                             ->where('existencias','>',0)
                             ->get();
             //dd($articulos);
+            if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
+            }
 
-            //Creando HTML solamente
-            //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ));
-
-            //Creando PDF con DOMPDF
-            $pdf = new Dompdf();
-            $pdf -> setPaper($papel, $orientacion);
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'pdf', 'orientacion'));
-            $options = new Options();
-            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
-            $pdf -> setOptions($options);
-            $pdf -> loadHtml($html);
-            $pdf -> render();
-            return $pdf->stream($nombre_archivo.".pdf");
-
+            //Usando dompdf
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
+            
         }
         /**
          * REPORTE DE COMPRAS DE ALMACÉN GENERAL
@@ -292,6 +254,12 @@ class ReporteController extends Controller
                       ->get();
             //dd($articulos); 
 
+            if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
+            }
+
             //Usando dompdf
             $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
             
@@ -311,7 +279,22 @@ class ReporteController extends Controller
             $ruta = "almacen.reportes.reporte_final_existencias";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'CANT.', 'COSTO', 'IMPORTE'];
             $papel = 'letter';
-            $orientacion='portrait';
+            $orientacion='landscape';
+
+            $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')->get();  
+            $articulos = DB::table('cat_articulos')
+                    ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                    ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                    ->where('existencias','>',0)
+                    ->get();
+            
+            if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
+            }
+            
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
         }
         /**
          * CONCENTRADO DE CONSUMOS POR ARTÍCULO
@@ -323,6 +306,8 @@ class ReporteController extends Controller
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
+            $articulos = DB::table('c_pedido_consumo')
+                    ->join('cat_articulos', 'c_pedido_consumo.')
         }
         /**
          * CONCENTRADO DE COMPRAS POR ARTÍCULO
@@ -366,11 +351,7 @@ class ReporteController extends Controller
            return back()->with('warning',"Porfavor seleccione un tipo de reporte");
         }
 
-        if($periodo){
-            $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
-        }else{
-            $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
-        }
+       
 
         return $pdf->stream($nombre_archivo);
        
