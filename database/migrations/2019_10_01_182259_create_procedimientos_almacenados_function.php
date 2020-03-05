@@ -646,9 +646,10 @@ class CreateProcedimientosAlmacenadosFunction extends Migration
                 SET @oficina := (SELECT id_oficina FROM c_pedido_consumo WHERE id_pedido_consumo = id_pedido);
                 SET @poliza := (SELECT id_poliza FROM polizas WHERE id_periodo = @periodo);
                 SET @folio := (SELECT folio FROM c_pedido_consumo WHERE c_pedido_consumo.id_pedido_consumo = id_pedido);
+                SET @ubpp := (SELECT ubpp FROM cat_oficinas WHERE cat_oficinas.id = (SELECT id_oficina FROM c_pedido_consumo WHERE id_pedido_consumo = id_pedido));
 
-                INSERT INTO consumos (id_oficina, id_poliza, id_periodo, id_pedido_consumo, folio, fecha_movimiento, created_at)
-                VALUES (@oficina, @poliza, @periodo, id_pedido, @folio, NOW(), NOW());
+                INSERT INTO consumos (id_oficina, id_poliza, id_periodo, id_pedido_consumo, folio, fecha_movimiento, created_at, ubpp_consumo)
+                VALUES (@oficina, @poliza, @periodo, id_pedido, @folio, NOW(), NOW(), @ubpp);
 
                 SET clave := (SELECT id_consumo FROM consumos WHERE consumos.id_pedido_consumo = id_pedido);
             END
