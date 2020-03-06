@@ -264,8 +264,24 @@ class ReporteController extends Controller
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
-            $articulos = DB::table('c_pedido_consumo')
-                    ->join('cat_articulos', 'c_pedido_consumo.')
+            $totalArt = DB::table('cat_articulos')->get();
+            $articulos = DB::table('periodos')
+                    ->whereBetween('no_mes', [$numMesInicio, $mesFin])
+                    ->join('c_pedido_consumo', 'periodos.id_periodo', '=', 'c_pedido_consumo.id_periodo')
+                    ->join('d_pedido_consumo', 'c_pedido_consumo.id_pedido_consumo', '=', 'd_pedido_consumo.id_pedido_consumo')
+                    ->join('cat_articulos', 'd_pedido_consumo.id_articulo', '=', 'cat_articulos.id')
+                    ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                    ->select('d_pedido_consumo.cantidad', 'c_pedido_consumo.id_periodo', 'cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta' )
+                    ->get();
+            dd($articulos);
+            if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
+            }
+
+            //$pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos','totalArt', 'orientacion'))->setPaper($papel, $orientacion);
+
         }
         /**
          * CONCENTRADO DE COMPRAS POR ARTÍCULO
