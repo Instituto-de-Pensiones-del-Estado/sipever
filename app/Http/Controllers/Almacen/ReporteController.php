@@ -187,7 +187,15 @@ class ReporteController extends Controller
                 ->groupBy('ubpp', 'descripcion')
                 ->get();
                 //SELECT oficina, ubpp, descripcion FROM cat_oficinas INNER JOIN consumos WHERE ubpp = ubpp_consumo AND oficina = 0 GROUP BY oficina, ubpp, descripcion
-            $partidas = DB :: table('cat_cuentas_contables')->select('id','sscta', 'nombre')->get();
+            
+            $partidas = DB :: table('cat_cuentas_contables')
+                ->join('cat_articulos', 'cat_cuentas_contables.id', '=', 'cat_articulos.id_cuenta')
+                ->join('detalles', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->select('cat_cuentas_contables.id','sscta', 'nombre')
+                ->groupBy('id', 'sscta', 'nombre')
+                ->get();
+                //SELECT cat_cuentas_contables.id, sscta, nombre FROM cat_cuentas_contables INNER JOIN cat_articulos ON cat_cuentas_contables.id = cat_articulos.id_cuenta INNER JOIN detalles WHERE id_articulo = cat_articulos.id GROUP BY cat_cuentas_contables.id, sscta, nombre            
+            
             $consumos = DB :: table('consumos')
                 ->join('periodos', 'consumos.id_periodo', "=", 'periodos.id_periodo')
                 ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
@@ -198,6 +206,7 @@ class ReporteController extends Controller
                         'detalles.subtotal', 'cat_articulos.id_cuenta')
                 ->where('periodos.estatus', '=', 1)
                 ->get();
+            //dd($consumos);
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
             $total_articulos = DB :: table ('detalles')
@@ -229,12 +238,15 @@ class ReporteController extends Controller
             $papel = 'letter';
             $orientacion='landscape';
 
-            $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')->get();
+            $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')
+                        ->orderBy('cat_cuentas_contables.sscta', 'asc')
+                        ->get();  
             $articulos = DB::table('cat_articulos')
-                            ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                            ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
-                            ->where('existencias','>',0)
-                            ->get();
+                        ->orderBy('cat_articulos.clave', 'asc')
+                        ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                        ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                        ->where('existencias','>',0)
+                        ->get();
             //dd($articulos);
 
             if($periodo){
@@ -244,7 +256,7 @@ class ReporteController extends Controller
             }
 
             //Usando dompdf
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
             
         }
         /**
@@ -334,8 +346,11 @@ class ReporteController extends Controller
             $papel = 'letter';
             $orientacion='landscape';
 
-            $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')->get();  
+            $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')
+                        ->orderBy('cat_cuentas_contables.sscta', 'asc')
+                        ->get();  
             $articulos = DB::table('cat_articulos')
+                    ->orderBy('cat_articulos.clave', 'asc')
                     ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
                     ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
                     ->where('existencias','>',0)
@@ -347,7 +362,7 @@ class ReporteController extends Controller
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
             }
             
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
         }
         /**
          * CONCENTRADO DE CONSUMOS POR ARTÍCULO
@@ -359,8 +374,48 @@ class ReporteController extends Controller
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
-            //$articulos = DB::table('c_pedido_consumo')
-            //        ->join('cat_articulos', 'c_pedido_consumo.')
+            $total_art = DB::table('cat_articulos')
+                    ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                    ->join('d_pedido_consumo', 'cat_articulos.id' ,'=', 'd_pedido_consumo.id_articulo')
+                    ->join('c_pedido_consumo', 'd_pedido_consumo.id_pedido_consumo', '=', 'c_pedido_consumo.id_pedido_consumo')
+                    ->join('periodos', 'c_pedido_consumo.id_periodo', '=', 'periodos.id_periodo')
+                    ->orderBy('cat_articulos.clave', 'asc')
+                    ->select('cat_articulos.id','cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'd_pedido_consumo.cantidad', 'periodos.anio' )
+                    ->where('d_pedido_consumo.cantidad', '>', 0)
+                    ->where('periodos.anio', '=', [$yearInicio])
+                    ->groupby('cat_articulos.clave')
+                    ->get();
+            $articulos = DB::table('periodos')
+                    ->where('periodos.anio', '=', [$yearInicio])
+                    ->whereBetween('no_mes', [$numMesInicio, $mesFin])
+                    ->join('c_pedido_consumo', 'periodos.id_periodo', '=', 'c_pedido_consumo.id_periodo')
+                    ->join('d_pedido_consumo', 'c_pedido_consumo.id_pedido_consumo', '=', 'd_pedido_consumo.id_pedido_consumo')
+                    ->join('cat_articulos', 'd_pedido_consumo.id_articulo', '=', 'cat_articulos.id')
+                    ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                    ->select('d_pedido_consumo.cantidad', 'c_pedido_consumo.id_periodo', 'cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'periodos.no_mes' )
+                    ->get();
+            $t_tipos_art = DB::table('cat_articulos')
+                    ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                    ->join('d_pedido_consumo', 'cat_articulos.id' ,'=', 'd_pedido_consumo.id_articulo')
+                    ->join('c_pedido_consumo', 'd_pedido_consumo.id_pedido_consumo', '=', 'c_pedido_consumo.id_pedido_consumo')
+                    ->join('periodos', 'c_pedido_consumo.id_periodo', '=', 'periodos.id_periodo')
+                    ->orderBy('cat_articulos.clave', 'asc')
+                    ->select('cat_articulos.id','cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'd_pedido_consumo.cantidad', 'periodos.anio' )
+                    ->where('d_pedido_consumo.cantidad', '>', 0)
+                    ->where('periodos.anio', '=', [$yearInicio])
+                    ->groupby('cat_articulos.clave')
+                    ->get()->count();
+            
+            
+            //dd($t_tipos_art);
+            if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
+            }
+
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos','total_art', 'orientacion','numMesInicio','mesFin', 't_tipos_art' ))->setPaper($papel, $orientacion);
+
         }
         /**
          * CONCENTRADO DE COMPRAS POR ARTÍCULO

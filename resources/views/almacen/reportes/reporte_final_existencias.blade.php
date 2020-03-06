@@ -14,11 +14,16 @@
 @endphp
 <tbody>
 @foreach ($partidas as $itemPartida)
-    <tr>
-    <th>Partida:</th>
-    <th scope="row">{{$itemPartida->sscta}}</th>
-	<th colspan="4">{{$itemPartida->nombre}}</td>
-    </tr> 
+	@foreach ($articulos as $itemAr)
+		@if ($itemAr->id_cuenta == $itemPartida->id)
+		<tr>
+			<th>Partida:</th>
+			<th scope="row">{{$itemPartida->sscta}}</th>
+			<th colspan="4">{{$itemPartida->nombre}}</td>
+			</tr> 
+			@break
+		@endif
+	@endforeach
     @foreach ($articulos as $itemArticulo)
         @if ($itemArticulo->id_cuenta == $itemPartida->id)
         <tr>
@@ -35,6 +40,7 @@
          </tr>
         @endif
 	@endforeach
+		 @if ($cantArt > 0)
 		 <tr>
 			<td colspan="3" style="font-size: 13px; font-weight: bold; padding-left: 75%"> Cantidad de Articulos: </td>
 			<td style="font-size: 13px; font-weight: bold;">{{$cantArt}}</td>
@@ -48,6 +54,7 @@
 			$subtotal = 0;
 			$cantArt = 0;
 		@endphp
+		 @endif
 @endforeach
 <tr>
 	<td colspan="3" style="font-size: 13px; font-weight: bold; padding-left: 60%"> TOTAL GRAL. DE ARTICULOS : </td>

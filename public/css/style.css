@@ -23,6 +23,9 @@
         margin-bottom: 1rem;
         background-color: transparent;
       }
+      table tr{
+        text-align: center;
+      }
       table th,
       table td {
         padding: 0.10rem;
