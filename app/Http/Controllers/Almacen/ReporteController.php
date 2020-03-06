@@ -236,6 +236,7 @@ class ReporteController extends Controller
                             ->where('existencias','>',0)
                             ->get();
             //dd($articulos);
+
             if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
             }else{
@@ -265,9 +266,53 @@ class ReporteController extends Controller
                       ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
                       ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
                       ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                      ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                       ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'compras.no_factura', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal', 'cat_articulos.id_cuenta')
+                      ->where('periodos.estatus', '=', 1)
                       ->get();
             //dd($articulos); 
+
+
+            $total_movimientos = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->join('cat_articulos', 'cat_articulos.id', '=', 'detalles.id_articulo')
+                    ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                    ->groupBy('cat_cuentas_contables.sscta')
+                    ->selectRaw(' cat_cuentas_contables.sscta as sscta, count(detalles.tipo_movimiento) as count ')
+                    ->get();
+
+            $total_cantidades = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->join('cat_articulos', 'cat_articulos.id', '=', 'detalles.id_articulo')
+                    ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                    ->groupBy('cat_cuentas_contables.sscta')
+                    ->selectRaw('cat_cuentas_contables.sscta as sscta, sum(detalles.cantidad) as sum_cantidad ')
+                    ->get();
+                    
+            $total_subtotales = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->join('cat_articulos', 'cat_articulos.id', '=', 'detalles.id_articulo')
+                    ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                    ->groupBy('cat_cuentas_contables.sscta')
+                    ->selectRaw('cat_cuentas_contables.sscta as sscta, sum(detalles.subtotal) as sum_subtotal ')
+                    ->get();  
+
+            $total_movimientos_general = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->selectRaw('count(detalles.tipo_movimiento) as count ')
+                    ->get();  
+                    
+            $total_cantidades_general = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->selectRaw('sum(detalles.cantidad) as sum_cantidad ')
+                    ->get();  
+
+            $total_subtotales_general = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->selectRaw('sum(detalles.subtotal) as sum_subtotal')
+                    ->get();                 
+                   
+           //dd($total_cantidades_general);    
 
             if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
@@ -276,14 +321,7 @@ class ReporteController extends Controller
             }
 
             //Usando dompdf
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
-            
-            //Creando solamente el HTML
-            //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
-            
-            //Usando laravel-snappy
-            //$pdf = PDF2:: loadView($ruta, compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
-            //return $pdf-> download('ejemplo.pdf');
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'total_movimientos', 'total_cantidades', 'total_subtotales', 'total_movimientos_general', 'total_cantidades_general', 'total_subtotales_general'))->setPaper($papel, $orientacion);
         }
         /**
          * REPORTE FINAL DE EXISTENCIAS
