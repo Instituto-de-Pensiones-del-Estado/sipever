@@ -10,13 +10,21 @@
     $totalGeneral = 0;
     $cantArtTotal = 0;
 @endphp
-@foreach ($partidas as $itemPartida)
 <tbody>
-    <tr>
-    <th>Partida:</th>
-    <th scope="row">{{$itemPartida->sscta}}</th>
-    <th colspan="4">{{$itemPartida->nombre}}</td>
-    </tr> 
+@foreach ($partidas as $itemPartida)
+    @foreach ($articulos as $itemAr)
+        @if ($itemAr->id_cuenta == $itemPartida->id)
+        <tr>
+            <td colspan="8"><hr></td>
+        </tr>
+        <tr>
+            <th>Partida:</th>
+            <th scope="row">{{$itemPartida->sscta}}</th>
+            <th colspan="4">{{$itemPartida->nombre}}</td>
+            </tr> 
+            @break
+        @endif
+	@endforeach
     @foreach ($articulos as $itemArticulo)
         @if ($itemArticulo->id_cuenta == $itemPartida->id)
         <tr>
@@ -32,9 +40,6 @@
             {{$cantArtTotal = $cantArtTotal + $itemArticulo->existencias}}-->
         @endif
     @endforeach
-    <tr>
-        <td colspan="8"><hr></td>
-    </tr>
 @endforeach
 <tr>
     <td colspan="2" style="padding-left: 30%; font-size: 13px; font-weight: bold;">ARTICULOS</td>
