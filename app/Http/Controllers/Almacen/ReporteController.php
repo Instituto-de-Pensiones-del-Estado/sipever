@@ -187,7 +187,15 @@ class ReporteController extends Controller
                 ->groupBy('ubpp', 'descripcion')
                 ->get();
                 //SELECT oficina, ubpp, descripcion FROM cat_oficinas INNER JOIN consumos WHERE ubpp = ubpp_consumo AND oficina = 0 GROUP BY oficina, ubpp, descripcion
-            $partidas = DB :: table('cat_cuentas_contables')->select('id','sscta', 'nombre')->get();
+            
+            $partidas = DB :: table('cat_cuentas_contables')
+                ->join('cat_articulos', 'cat_cuentas_contables.id', '=', 'cat_articulos.id_cuenta')
+                ->join('detalles', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->select('cat_cuentas_contables.id','sscta', 'nombre')
+                ->groupBy('id', 'sscta', 'nombre')
+                ->get();
+                //SELECT cat_cuentas_contables.id, sscta, nombre FROM cat_cuentas_contables INNER JOIN cat_articulos ON cat_cuentas_contables.id = cat_articulos.id_cuenta INNER JOIN detalles WHERE id_articulo = cat_articulos.id GROUP BY cat_cuentas_contables.id, sscta, nombre            
+            
             $consumos = DB :: table('consumos')
                 ->join('periodos', 'consumos.id_periodo', "=", 'periodos.id_periodo')
                 ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
@@ -198,6 +206,7 @@ class ReporteController extends Controller
                         'detalles.subtotal', 'cat_articulos.id_cuenta')
                 ->where('periodos.estatus', '=', 1)
                 ->get();
+            //dd($consumos);
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
             $total_articulos = DB :: table ('detalles')
