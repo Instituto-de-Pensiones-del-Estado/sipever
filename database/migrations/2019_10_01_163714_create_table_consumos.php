@@ -30,6 +30,7 @@ class CreateTableConsumos extends Migration
 
             $table->string('folio');
             $table->string('fecha_movimiento');
+            $table->char('ubpp_consumo',4);
 
             $table->timestamps();
         });

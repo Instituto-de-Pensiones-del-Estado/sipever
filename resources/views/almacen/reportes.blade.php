@@ -130,6 +130,7 @@
                 </div>
                 <div class ="col-lg-8">
                     <div class="row">
+                    <!--
                         <div class ="container-fluid" style="margin-top: 5%;">
                             <select id="selectDepto" class="form-control" name="depto" method="post">
                                 <option value ="">Seleccione un departamento</option>
@@ -142,7 +143,7 @@
                             <select id="selectOficina" class="form-control" name="oficina">
                                 <option value ="">Seleccione una oficina</option>
                             </select>
-                        </div>
+                        </div>-->
                     </div>
                     <div id="reporteSingleton" style="margin-bottom: 5%; margin-top: 2%;">
                         <div class="form-check">

@@ -90,7 +90,7 @@ function seleccionarReporte(checkBox){
     checkBox.setAttribute("value","checked");
     var selectDepto = document.getElementById("selectDepto");
     var selectOficina = document.getElementById("selectOficina");
-    if(checkBox.id == "reporteConsDepto" || checkBox.id == "consumosAreaArt"){
+    /*if(checkBox.id == "reporteConsDepto" || checkBox.id == "consumosAreaArt"){
         if(checkBox.checked){
             selectDepto.style.display = 'block';
             selectOficina.style.display = 'block';
@@ -118,7 +118,7 @@ function seleccionarReporte(checkBox){
         selectOficina.removeAttribute("required");
         selectDepto.setAttribute("disabled", "true");
         selectOficina.setAttribute("disabled", "true");
-    }
+    }*/
 }
 
 function unSoloMes(checkBox){
