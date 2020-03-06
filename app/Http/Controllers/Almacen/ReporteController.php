@@ -229,12 +229,15 @@ class ReporteController extends Controller
             $papel = 'letter';
             $orientacion='landscape';
 
-            $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')->get();
+            $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')
+                        ->orderBy('cat_cuentas_contables.sscta', 'asc')
+                        ->get();  
             $articulos = DB::table('cat_articulos')
-                            ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                            ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
-                            ->where('existencias','>',0)
-                            ->get();
+                        ->orderBy('cat_articulos.clave', 'asc')
+                        ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                        ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                        ->where('existencias','>',0)
+                        ->get();
             //dd($articulos);
             if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
@@ -243,7 +246,7 @@ class ReporteController extends Controller
             }
 
             //Usando dompdf
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
             
         }
         /**
@@ -276,14 +279,8 @@ class ReporteController extends Controller
             }
 
             //Usando dompdf
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
             
-            //Creando solamente el HTML
-            //return view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
-            
-            //Usando laravel-snappy
-            //$pdf = PDF2:: loadView($ruta, compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
-            //return $pdf-> download('ejemplo.pdf');
         }
         /**
          * REPORTE FINAL DE EXISTENCIAS
@@ -296,8 +293,11 @@ class ReporteController extends Controller
             $papel = 'letter';
             $orientacion='landscape';
 
-            $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')->get();  
+            $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')
+                        ->orderBy('cat_cuentas_contables.sscta', 'asc')
+                        ->get();  
             $articulos = DB::table('cat_articulos')
+                    ->orderBy('cat_articulos.clave', 'asc')
                     ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
                     ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
                     ->where('existencias','>',0)
@@ -309,7 +309,7 @@ class ReporteController extends Controller
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
             }
             
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
         }
         /**
          * CONCENTRADO DE CONSUMOS POR ARTÍCULO
@@ -321,23 +321,47 @@ class ReporteController extends Controller
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
-            $totalArt = DB::table('cat_articulos')->get();
+            $total_art = DB::table('cat_articulos')
+                    ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                    ->join('d_pedido_consumo', 'cat_articulos.id' ,'=', 'd_pedido_consumo.id_articulo')
+                    ->join('c_pedido_consumo', 'd_pedido_consumo.id_pedido_consumo', '=', 'c_pedido_consumo.id_pedido_consumo')
+                    ->join('periodos', 'c_pedido_consumo.id_periodo', '=', 'periodos.id_periodo')
+                    ->orderBy('cat_articulos.clave', 'asc')
+                    ->select('cat_articulos.id','cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'd_pedido_consumo.cantidad', 'periodos.anio' )
+                    ->where('d_pedido_consumo.cantidad', '>', 0)
+                    ->where('periodos.anio', '=', [$yearInicio])
+                    ->groupby('cat_articulos.clave')
+                    ->get();
             $articulos = DB::table('periodos')
+                    ->where('periodos.anio', '=', [$yearInicio])
                     ->whereBetween('no_mes', [$numMesInicio, $mesFin])
                     ->join('c_pedido_consumo', 'periodos.id_periodo', '=', 'c_pedido_consumo.id_periodo')
                     ->join('d_pedido_consumo', 'c_pedido_consumo.id_pedido_consumo', '=', 'd_pedido_consumo.id_pedido_consumo')
                     ->join('cat_articulos', 'd_pedido_consumo.id_articulo', '=', 'cat_articulos.id')
                     ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                    ->select('d_pedido_consumo.cantidad', 'c_pedido_consumo.id_periodo', 'cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta' )
+                    ->select('d_pedido_consumo.cantidad', 'c_pedido_consumo.id_periodo', 'cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'periodos.no_mes' )
                     ->get();
-            dd($articulos);
+            $t_tipos_art = DB::table('cat_articulos')
+                    ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                    ->join('d_pedido_consumo', 'cat_articulos.id' ,'=', 'd_pedido_consumo.id_articulo')
+                    ->join('c_pedido_consumo', 'd_pedido_consumo.id_pedido_consumo', '=', 'c_pedido_consumo.id_pedido_consumo')
+                    ->join('periodos', 'c_pedido_consumo.id_periodo', '=', 'periodos.id_periodo')
+                    ->orderBy('cat_articulos.clave', 'asc')
+                    ->select('cat_articulos.id','cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'd_pedido_consumo.cantidad', 'periodos.anio' )
+                    ->where('d_pedido_consumo.cantidad', '>', 0)
+                    ->where('periodos.anio', '=', [$yearInicio])
+                    ->groupby('cat_articulos.clave')
+                    ->get()->count();
+            
+            
+            //dd($t_tipos_art);
             if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
             }else{
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
             }
 
-            //$pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos','totalArt', 'orientacion'))->setPaper($papel, $orientacion);
+            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos','total_art', 'orientacion','numMesInicio','mesFin', 't_tipos_art' ))->setPaper($papel, $orientacion);
 
         }
         /**
