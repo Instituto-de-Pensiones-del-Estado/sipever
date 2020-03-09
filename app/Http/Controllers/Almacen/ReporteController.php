@@ -439,11 +439,33 @@ class ReporteController extends Controller
             $mensaje = 'Concentrado de existencias por artículo';
             $nombre_archivo="CONCENTEXISTART";
             $ruta = "almacen.reportes.existencias_p_articulo";
-            //Preparamos la llamada al procedimiento remoto
-            //$query = $db->prepare('CALL sp_concentrado_existencias(?,?,?)');
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
+
+            $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')
+                ->orderBy('cat_cuentas_contables.sscta', 'asc')
+                ->get();  
+            
+            $articulos = DB::table('inventario_inicial_final')
+                ->join('periodos', 'inventario_inicial_final.id_periodo', '=', 'periodos.id_periodo')
+                ->join('cat_articulos', 'inventario_inicial_final.id_articulo', '=', 'cat_articulos.id')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->whereBetween('no_mes', [$numMesInicio, $mesFin])
+                ->where('periodos.anio', '=', [$yearInicio])
+                ->select('periodos.no_mes','cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'inventario_inicial_final.existencias')
+                ->orderBy('cat_articulos.clave', 'asc')
+                ->get();
+
+            $periodos = DB::table('periodos')
+                ->whereBetween('no_mes', [$numMesInicio, $mesFin])
+                ->where('periodos.anio', '=', [$yearInicio])
+                ->select('no_mes', 'anio')
+                ->get();
+
+
+            dd($periodos);
+
         }
         /**
          * CONCENTRADO DE CONSUMOS POR ÁREA Y ARTÍCULO

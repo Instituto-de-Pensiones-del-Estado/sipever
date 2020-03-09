@@ -109,7 +109,7 @@ class PeriodoController extends Controller
                 }
             }
         }
-
+        
         if(!in_array($no_mes, $meses) || !in_array($anio, $years)){
             return redirect()->route('almacen.periodo.index')->with('warning', "El mes ingresado no existe o está cerrado, intente mas tarde\nSi el problema persiste contacte al departamento de tecnologías de la información");
         }
