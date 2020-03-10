@@ -13,18 +13,19 @@
     <header>
       <div class="header" style="text-align: center;">
         <div class="row" style="height: 65px;">
-        <img src="{{$logo_b64}}"  style="width: 40%; padding:20px; float: center;">
-          <div style="margin-left:10%;">
+        <img src="{{$logo_b64}}"  style="width: 35%; padding:20px; float: center;">
+          <div style="margin-left:0%;">
             <h5>Instituto de pensiones del Estado</h5>
             <p style="font-size: 13px;font-weight: bold; margin:0; padding:0;">Subdirección Administrativa</p>
             <p style="font-size: 13px;font-weight: bold; margin:0; padding:0;">Almacén general</p>
+            <br>
           </div>
           <div style="margin-left: 75%;">
-            <p style="font-size: 10px;font-weight: bold; margin:10; padding:0;">Fecha: {{$fecha}}</p>
+            <p style="font-size: 10px;font-weight: bold; margin-top:30; padding:0;">Fecha: {{$fecha}}</p>
             <p style="font-size: 10px; font-weight: bold;">Hora: {{$hora}}</p>
           </div>
         </div>
-          <h4 style="word-wrap: break-word; width: 50%; margin-left: 27%; padding-bottom: 10px; ">{{$mensaje}}</h4>
+          <h4 style="font-size: 13px; word-wrap: break-word; width: 50%; margin-left: 25%; padding-bottom: 10px; ">{{$mensaje}}</h4>
       </div>
     </header>
     <div class="body">

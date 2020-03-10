@@ -15,6 +15,10 @@
     $t_consumos_partida=0;
     $t_arts_partida=0;
     $t_importe_partida=0;
+
+    $t_consumos_depto=0;
+    $t_arts_depto=0;
+    $t_importe_depto=0;
 @endphp
 
     <!-- FOREACH DEPARTAMENTOS -->
@@ -62,6 +66,8 @@
                         $t_consumos_partida += 1;
                         $t_arts_partida += $validConsumos->cantidad;
                         $t_importe_partida += $validConsumos->subtotal;
+
+                        
                     @endphp
                     @endif
                 @endforeach
@@ -93,6 +99,11 @@
                  @endphp
             @endforeach 
             <!-- TERMINA FOREACH PARTIDAS-->
+            <tr>
+                <td></td>
+                <td>ESTO DEBERÍA IR DESPUÉS DE CADA DEPARTAMENTO</td>
+                <td></td>
+            </tr>
     @endforeach
     <!-- TERMINA FOREACH DEPARTAMENTOS -->
     </tbody>
