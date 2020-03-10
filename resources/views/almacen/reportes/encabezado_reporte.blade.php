@@ -28,7 +28,7 @@
       </div>
     </header>
     <div class="body">
-      <table style="padding-top: 10px; margin-top: 20px; " class="table">
+      <table style="padding-top: 10px; margin-top: 0px; " class="table">
         @yield('content')
       </table>
     </div>
