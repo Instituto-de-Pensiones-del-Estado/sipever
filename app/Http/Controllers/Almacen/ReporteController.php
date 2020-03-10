@@ -326,14 +326,26 @@ class ReporteController extends Controller
                    
            //dd($total_cantidades_general);    
 
-            if($periodo){
+            /*if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
             }else{
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
-            }
+            }*/
 
             //Usando dompdf
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'total_movimientos', 'total_cantidades', 'total_subtotales', 'total_movimientos_general', 'total_cantidades_general', 'total_subtotales_general'))->setPaper($papel, $orientacion);
+            //$pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'total_movimientos', 'total_cantidades', 'total_subtotales', 'total_movimientos_general', 'total_cantidades_general', 'total_subtotales_general'))->setPaper($papel, $orientacion);
+
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'total_movimientos', 'total_cantidades', 'total_subtotales', 'total_movimientos_general', 'total_cantidades_general', 'total_subtotales_general', 'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+
+
         }
         /**
          * REPORTE FINAL DE EXISTENCIAS
