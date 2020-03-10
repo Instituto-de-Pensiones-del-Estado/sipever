@@ -19,6 +19,10 @@
     $t_consumos_depto=0;
     $t_arts_depto=0;
     $t_importe_depto=0;
+
+    $t_consumos_general=0;
+    $t_arts_general=0;
+    $t_importe_general=0;
 @endphp
 
     <!-- FOREACH DEPARTAMENTOS -->
@@ -90,26 +94,48 @@
                     @break
                     @endif
                 @endforeach
+                <!-- TERMINA EL FOREACH CONDICIONAL -->
 
-                <!-- -->
+                <!-- Se usan variables contadoras para imprimir los totales por partida, depto. y en total. -->
                 @php
+                    $t_consumos_depto += $t_consumos_partida;
+                    $t_arts_depto += $t_arts_partida;
+                    $t_importe_depto += $t_importe_partida;
+
                     $t_consumos_partida=0;
                     $t_arts_partida=0;
                     $t_importe_partida=0;
                  @endphp
+
             @endforeach 
             <!-- TERMINA FOREACH PARTIDAS-->
+
             <tr>
-                <td></td>
-                <td>ESTO DEBERÍA IR DESPUÉS DE CADA DEPARTAMENTO</td>
-                <td></td>
+                        <th style="border-top: 2px solid #dee2e6">TOTALES POR DEPARTAMENTO</th>
+                        <th style="border-top: 2px solid #dee2e6">CONSUMOS:</th>
+                        <th style="border-top: 2px solid #dee2e6">{{$t_consumos_depto}}</th>
+                        <th style="border-top: 2px solid #dee2e6">ARTÍCULOS:</th>
+                        <th style="border-top: 2px solid #dee2e6">{{$t_arts_depto}}</th>
+                        <th style="border-top: 2px solid #dee2e6"></th>
+                        <th style="border-top: 2px solid #dee2e6">{{$t_importe_depto}}</th>
             </tr>
+
+            <!-- Se usan variables contadoras para imprimir los totales por partida, depto. y en total. -->
+            @php
+                $t_consumos_general += $t_consumos_depto;
+                $t_arts_general += $t_arts_depto;
+                $t_importe_general += $t_importe_depto;
+
+                $t_consumos_depto=0;
+                $t_arts_depto=0;
+                $t_importe_depto=0;
+            @endphp
     @endforeach
     <!-- TERMINA FOREACH DEPARTAMENTOS -->
     </tbody>
-</table>
-<!--    
-<table>
+</table style="border-bottom: 2px solid #dee2e6; text-align: left;">
+    
+<table border="0">
     <thead>
         <tr>
             <th>TOTAL DE ARTÍCULOS POR PARTIDAS</th>
