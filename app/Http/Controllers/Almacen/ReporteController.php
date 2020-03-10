@@ -53,8 +53,13 @@ class ReporteController extends Controller
         $office_code = $request->cookie('__office_session');
         $validConsumo = $request->input('validConsumo');
         $consDepto = $request->input('consDepto');
+        $consArt = $request->input('consArt');
+        $reConsDepto = $request->input('reConsDepto');
         $auxAlmacen = $request->input('auxAlmacen');
         $compAlmacen = $request->input('compAlmacen');
+        $simCompras = $request->input('simCompras');
+        $validCompras = $request->input('validCompras');
+        $validTraslados = $request->input('validTraslados');
         $consArticulo = $request->input('consArticulo');
         $existencias = $request->input('existencias');
         $compArticulo = $request->input('compArticulo');
@@ -228,6 +233,76 @@ class ReporteController extends Controller
             
         }
         /**
+         * REPORTE DE CONSUMOS POR ARTICULO
+         */
+        elseif ($consArt == "checked") {
+            $mensaje = 'Reporte de consumos por artículo';
+            $nombre_archivo="REPCONSART";
+            $ruta = "almacen.reportes.reporte_consumos_articulo";
+            $headers=['CODIF.','DESCRIPCION','VALE','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'DEPARTAMENTO'];
+            $papel = 'letter';
+            $orientacion='portrait';
+            /**
+             * CONSULTAS A LA BD
+             * 
+             * @deptos: Departamentos centrales del IPE
+             * @partidas: Partidas de artículos que existen en el IPE
+             * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
+             * descripción, unidad de medida, cantidad, costo unitario e importe.
+             * @total_consumos: Suma del total de consumos/vales en un período.
+             * @total_articulos: Cantidad total de artículos en un período.
+             * @total_importe: Importe total de los consumos.
+             */
+            
+            //dd($deptos);
+            //Creando PDF con DOMPDF
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+            
+        }
+        /**
+         * RESUMEN DE CONSUMOS POR DEPARTAMENTO
+         */
+        elseif ($reConsDepto == "checked") {
+            $mensaje = 'Resumen de consumos por departamento';
+            $nombre_archivo="RESCONSDEPTO";
+            $ruta = "almacen.reportes.resumen_consumos_depto";
+            $headers=['CTA.','SCTA.','SSCTA.','CONCEPTO','CONSUMOS'];
+            $papel = 'letter';
+            $orientacion='portrait';
+            /**
+             * CONSULTAS A LA BD
+             * 
+             * @deptos: Departamentos centrales del IPE
+             * @partidas: Partidas de artículos que existen en el IPE
+             * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
+             * descripción, unidad de medida, cantidad, costo unitario e importe.
+             * @total_consumos: Suma del total de consumos/vales en un período.
+             * @total_articulos: Cantidad total de artículos en un período.
+             * @total_importe: Importe total de los consumos.
+             */
+            
+            //dd($deptos);
+            //Creando PDF con DOMPDF
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+            
+        }
+        /**
          * REPORTE AUXILIAR DE ALMACÉN GENERAL
          */
         elseif ($auxAlmacen == "checked"){
@@ -337,6 +412,103 @@ class ReporteController extends Controller
 
             $pdf = new Dompdf();
             $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'total_movimientos', 'total_cantidades', 'total_subtotales', 'total_movimientos_general', 'total_cantidades_general', 'total_subtotales_general', 'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+
+
+        }
+        /**
+         * REPORTE DE SIMULACIÓN DE ACTUALIZACIÓN DE COMPRAS
+         */
+        elseif ($simCompras == "checked"){
+            $mensaje = 'Simulación de actualización de compras';
+            $nombre_archivo="REPSIMCOM";
+            $ruta = "almacen.reportes.reporte_simulacion_compras";
+            $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT. INICIAL','CANT. ADQ.','CANT. TOTAL'];
+            $papel = 'letter';
+            $orientacion='portrait';
+            
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+
+
+        }
+        /**
+         * REPORTE DE VALIDACIÓN DE COMPRAS
+         */
+        elseif ($validCompras == "checked"){
+            $mensaje = 'Reporte para validación de compras';
+            $nombre_archivo="REPVALCOM";
+            $ruta = "almacen.reportes.reporte_validacion_compras";
+            $headers=['FACTURA','CODIF.','DESCRIPCION','UNIDAD','CANT.','COST. UNIT.','IMPORTE'];
+            $papel = 'letter';
+            $orientacion='portrait';
+
+            $articulos = DB::table('detalles')
+                ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
+                ->select('compras.no_factura', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal')
+                ->where('periodos.estatus', '=', 1)
+                ->orderBy('compras.no_factura',  'desc')
+                ->get();
+
+            //dd($articulos);
+
+            $total_movimientos_general = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->selectRaw('count(detalles.tipo_movimiento) as count ')
+                    ->get();  
+                    
+            $total_cantidades_general = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->selectRaw('sum(detalles.cantidad) as sum_cantidad ')
+                    ->get();  
+
+            $total_subtotales_general = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->selectRaw('sum(detalles.subtotal) as sum_subtotal')
+                    ->get(); 
+                 
+            
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos', 'total_movimientos_general', 'total_cantidades_general', 'total_subtotales_general', 'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+
+
+        }
+        /**
+         * REPORTE DE VALIDACIÓN DE TRASLADOS
+         */
+        elseif ($validTraslados == "checked"){
+            $mensaje = 'Reporte para validación de traslados';
+            $nombre_archivo="REPVALTRAS";
+            $ruta = "almacen.reportes.reporte_validacion_traslados";
+            $headers=['FOLIO','CODIF. SAL.','DESCRIPCION','UNIDAD SAL.','CANT. ENTR.','COSTO SALIDA','IMPORTE SALIDA'];
+            $papel = 'letter';
+            $orientacion='portrait';
+            
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
