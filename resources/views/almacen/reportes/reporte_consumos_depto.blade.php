@@ -66,6 +66,8 @@
                         $t_consumos_partida += 1;
                         $t_arts_partida += $validConsumos->cantidad;
                         $t_importe_partida += $validConsumos->subtotal;
+
+                        
                     @endphp
                     @endif
                 @endforeach
@@ -98,9 +100,6 @@
             @endforeach 
             <!-- TERMINA FOREACH PARTIDAS-->
             <tr>
-                @foreach ($consumos as $sumatoria_consumos_depto)
-
-                @end
                 <td></td>
                 <td>ESTO DEBERÍA IR DESPUÉS DE CADA DEPARTAMENTO</td>
                 <td></td>
