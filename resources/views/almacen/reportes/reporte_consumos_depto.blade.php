@@ -15,6 +15,10 @@
     $t_consumos_partida=0;
     $t_arts_partida=0;
     $t_importe_partida=0;
+
+    $t_consumos_depto=0;
+    $t_arts_depto=0;
+    $t_importe_depto=0;
 @endphp
 
     <!-- FOREACH DEPARTAMENTOS -->
@@ -93,6 +97,14 @@
                  @endphp
             @endforeach 
             <!-- TERMINA FOREACH PARTIDAS-->
+            <tr>
+                @foreach ($consumos as $sumatoria_consumos_depto)
+
+                @end
+                <td></td>
+                <td>ESTO DEBERÍA IR DESPUÉS DE CADA DEPARTAMENTO</td>
+                <td></td>
+            </tr>
     @endforeach
     <!-- TERMINA FOREACH DEPARTAMENTOS -->
     </tbody>
