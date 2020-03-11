@@ -90,4 +90,6 @@
     <td style="font-size: 13px; font-weight: bold;">{{$segundo_semestre}}</td>
 </tr>
 </tbody>
+<footer>
+</footer>
 @endsection

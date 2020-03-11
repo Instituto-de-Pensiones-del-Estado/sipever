@@ -57,4 +57,6 @@
     <td style="font-size: 13px; font-weight: bold;">{{$totalGeneral - $totalGeneral}}</td>
 </tr>
 </tbody>
+<footer>
+</footer>
 @endsection

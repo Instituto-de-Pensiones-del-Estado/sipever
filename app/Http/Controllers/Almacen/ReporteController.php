@@ -315,25 +315,41 @@ class ReporteController extends Controller
             $papel = 'letter';
             $orientacion='landscape';
 
+            /**
+             * CONSULTAS A LA BD
+             * 
+             * @partidas: Partidas de artículos que existen en el IPE
+             * @total_articulos: cantidad de articulos en existencia que hay en el IPE 
+             * 
+             */
+            
+
             $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')
                         ->orderBy('cat_cuentas_contables.sscta', 'asc')
                         ->get();  
-            $articulos = DB::table('cat_articulos')
-                        ->orderBy('cat_articulos.clave', 'asc')
+            $total_articulos = DB::table('cat_articulos')
                         ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
                         ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
                         ->where('existencias','>',0)
+                        ->orderBy('cat_articulos.clave', 'asc')
                         ->get();
-            //dd($articulos);
-
+    
             if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
             }else{
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
             }
 
-            //Usando dompdf
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
+            //Usando dompdf 
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
             
         }
         /**
@@ -531,6 +547,14 @@ class ReporteController extends Controller
             $papel = 'letter';
             $orientacion='landscape';
 
+             /**
+             * CONSULTAS A LA BD
+             * 
+             * @partidas: Partidas de artículos que existen en el IPE
+             * @total_articulos: cantidad de articulos en existencia que hay en el IPE 
+             * 
+             */
+
             $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')
                         ->orderBy('cat_cuentas_contables.sscta', 'asc')
                         ->get();  
@@ -547,7 +571,15 @@ class ReporteController extends Controller
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
             }
             
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
         }
         /**
          * CONCENTRADO DE CONSUMOS POR ARTÍCULO
@@ -559,6 +591,16 @@ class ReporteController extends Controller
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
+
+            /**
+             * CONSULTAS A LA BD
+             * 
+             * @articulos: articulos consumidos durante los periodos establecidos
+             * @total_art: articulos consumidos durante los periodo establecidos con informacion extra 
+             * @t_tipos_art: total de articulos que fueron consumidos
+             * 
+             */
+
             $total_art = DB::table('cat_articulos')
                     ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
                     ->join('d_pedido_consumo', 'cat_articulos.id' ,'=', 'd_pedido_consumo.id_articulo')
@@ -592,15 +634,21 @@ class ReporteController extends Controller
                     ->get()->count();
             
             
-            //dd($t_tipos_art);
             if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
             }else{
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
             }
 
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos','total_art', 'orientacion','numMesInicio','mesFin', 't_tipos_art' ))->setPaper($papel, $orientacion);
-
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos','total_art', 'orientacion','numMesInicio','mesFin', 't_tipos_art' ));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
         }
         /**
          * CONCENTRADO DE COMPRAS POR ARTÍCULO
