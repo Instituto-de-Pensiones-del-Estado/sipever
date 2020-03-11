@@ -65,6 +65,8 @@ class ReporteController extends Controller
         $compArticulo = $request->input('compArticulo');
         $existArticulo = $request->input('existArticulo');
         $consAreaArt = $request->input('consAreaArt');
+        $gastoDepto = $request->input('gastoDepto');
+        $consArtArea = $request->input('consArtArea');
         $numMesInicio = $request->input('numMesInicio');
         $yearInicio = $request->input('yearInicio');
         $periodo = $request->has('mesFin') && $request->has('yearFin') ? true : false;
@@ -436,7 +438,6 @@ class ReporteController extends Controller
             $pdf -> render();
             return $pdf->stream($nombre_archivo.".pdf");
 
-
         }
         /**
          * REPORTE DE SIMULACIÓN DE ACTUALIZACIÓN DE COMPRAS
@@ -709,6 +710,59 @@ class ReporteController extends Controller
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
+
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+
+        }/**
+         * CONCENTRADO DE CONSUMOS DE ARTÍCULO ÁREA POR AREA
+         */
+        elseif ($consArtArea == "checked"){
+            $mensaje = 'Concentrado de consumos de artículo por área';
+            $nombre_archivo="CONCENTCONSARTA";
+            $ruta = "almacen.reportes.consumos_p_area";
+            $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
+            $papel = 'legal';
+            $orientacion='landscape';
+
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+
+        }/**
+         * CONCENTRADO DE GASTO POR DEPARTAMENTO
+         */
+        elseif ($gastoDepto == "checked"){
+            $mensaje = 'Concentrado de gastos a la fecha por departamento';
+            $nombre_archivo="CONCENTGASTDEPTO";
+            $ruta = "almacen.reportes.gasto_depto";
+            $headers = ['UBPP', 'DEPARTAMENTO', 'ESC. Y OFNA.', 'FORM. IMPR. ', 'MAT. COMP. ', 'MAT. IMPR. ', 'MAT. LIMP. ', 'MAT. FERRET. ', 'M. FOT. CIN.', 'IMPORTE TOTAL'];
+            $papel = 'legal';
+            $orientacion='landscape';
+
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+
         }else{
            return back()->with('warning',"Porfavor seleccione un tipo de reporte");
         }
