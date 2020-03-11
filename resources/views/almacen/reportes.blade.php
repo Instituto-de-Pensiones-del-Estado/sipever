@@ -144,6 +144,12 @@
                               <span class="checkmark"></span>
                             </label>
                         </div>
+                        <div class="form-check" style="display: inline-flex;">
+                            <label class="check-container">Consumos de artículo por área
+                              <input type="checkbox" class="checkReporte" type="checkbox" name="consArtArea" value="" id="consumosArtArea">
+                              <span class="checkmark"></span>
+                            </label>
+                        </div>
                         <div class="form-check" style="display: flex;">
                             <label class="check-container">Consumos por artículo
                               <input type="checkbox" class="checkReporte" type="checkbox" name="consArticulo" value="" id="consumosArticulo">
@@ -153,6 +159,12 @@
                         <div class="form-check" style="display: inline-flex;">
                             <label class="check-container">Existencias por artículo
                               <input type="checkbox" class="checkReporte" type="checkbox" name="existArticulo" value="" id="existenciasArticulo">
+                              <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="form-check" style="display: flex;">
+                            <label class="check-container">Gasto por departamento
+                              <input type="checkbox" class="checkReporte" type="checkbox" name="gastoDepto" value="" id="gastoDepto">
                               <span class="checkmark"></span>
                             </label>
                         </div>
