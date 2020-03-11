@@ -150,13 +150,13 @@ class ReporteController extends Controller
 
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
-            $total_articulos = DB :: table ('detalles')
+            $total_arti = DB :: table ('detalles')
                 ->sum('detalles.cantidad');
             $total_importe = DB :: table('detalles')
                 ->sum('detalles.subtotal');          
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_articulos',
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_arti',
                                          'total_importe', 'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
@@ -184,7 +184,7 @@ class ReporteController extends Controller
              * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
              * descripción, unidad de medida, cantidad, costo unitario e importe.
              * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_articulos: Cantidad total de artículos en un período.
+             * @total_arti: Cantidad total de artículos en un período.
              * @total_importe: Importe total de los consumos.
              */
             $deptos = DB :: table('cat_oficinas')
@@ -216,14 +216,14 @@ class ReporteController extends Controller
             //dd($consumos);
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
-            $total_articulos = DB :: table ('detalles')
+            $total_arti = DB :: table ('detalles')
                 ->sum('detalles.cantidad');
             $total_importe = DB :: table('detalles')
                 ->sum('detalles.subtotal');
             //dd($deptos);
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_articulos',
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_arti',
                                          'total_importe', 'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
@@ -252,7 +252,7 @@ class ReporteController extends Controller
              * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
              * descripción, unidad de medida, cantidad, costo unitario e importe.
              * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_articulos: Cantidad total de artículos en un período.
+             * @total_arti: Cantidad total de artículos en un período.
              * @total_importe: Importe total de los consumos.
              */
             
@@ -287,7 +287,7 @@ class ReporteController extends Controller
              * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
              * descripción, unidad de medida, cantidad, costo unitario e importe.
              * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_articulos: Cantidad total de artículos en un período.
+             * @total_arti: Cantidad total de artículos en un período.
              * @total_importe: Importe total de los consumos.
              */
             
@@ -311,7 +311,7 @@ class ReporteController extends Controller
             $mensaje = 'Reporte auxiliar de almacén general';
             $nombre_archivo="REPAUXALM";
             $ruta = "almacen.reportes.reporte_auxiliar";
-            $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'INV. FIN'];
+            $headers=['CODIF.','DESCRIPCION', 'DEPARTAMENTO', 'MOVTO', 'NO. VALE','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'INV. FIN'];
             $papel = 'letter';
             $orientacion='landscape';
 
@@ -319,21 +319,29 @@ class ReporteController extends Controller
              * CONSULTAS A LA BD
              * 
              * @partidas: Partidas de artículos que existen en el IPE
-             * @total_articulos: cantidad de articulos en existencia que hay en el IPE 
-             * 
+             * @articulos: cantidad de articulos en existencia que hay en el IPE 
+             * @dpto_movto: movientos que se han hecho por departamentos por cada uno de los arituculos
              */
             
 
             $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')
-                        ->orderBy('cat_cuentas_contables.sscta', 'asc')
-                        ->get();  
-            $total_articulos = DB::table('cat_articulos')
-                        ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                        ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
-                        ->where('existencias','>',0)
-                        ->orderBy('cat_articulos.clave', 'asc')
-                        ->get();
-    
+                ->orderBy('cat_cuentas_contables.sscta', 'asc')
+                ->get();  
+            $articulos = DB::table('cat_articulos')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->select('cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                ->where('existencias','>',0)
+                ->orderBy('cat_articulos.clave', 'asc')
+                ->get();
+            $dpto_movto = DB::table('c_pedido_consumo')
+                ->join('cat_oficinas', 'c_pedido_consumo.id_oficina', '=', 'cat_oficinas.id')
+                ->join('d_pedido_consumo', 'c_pedido_consumo.id_pedido_consumo', '=', 'd_pedido_consumo.id_pedido_consumo_d')
+                ->join('periodos', 'c_pedido_consumo.id_periodo', '=', 'periodos.id_periodo')
+                ->join('cat_articulos', 'd_pedido_consumo.id_articulo', '=', 'cat_articulos.id')
+                ->where('periodos.no_mes', '=', [$numMesInicio])
+                ->select('c_pedido_consumo.tipo_movimiento','c_pedido_consumo.folio', 'd_pedido_consumo.cantidad', 'd_pedido_consumo.id_articulo', 'cat_oficinas.descripcion', 'cat_articulos.precio_unitario')
+                ->get();
+            //dd($dpto_movto);
             if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
             }else{
@@ -342,7 +350,7 @@ class ReporteController extends Controller
 
             //Usando dompdf 
             $pdf = new Dompdf();
-            $html = view($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ));
+            $html = view($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'dpto_movto'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
@@ -551,7 +559,7 @@ class ReporteController extends Controller
              * CONSULTAS A LA BD
              * 
              * @partidas: Partidas de artículos que existen en el IPE
-             * @total_articulos: cantidad de articulos en existencia que hay en el IPE 
+             * @articulos: cantidad de articulos en existencia que hay en el IPE 
              * 
              */
 

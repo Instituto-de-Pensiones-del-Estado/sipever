@@ -15,7 +15,7 @@
     @foreach ($articulos as $itemAr)
         @if ($itemAr->id_cuenta == $itemPartida->id)
         <tr>
-            <td colspan="8"><hr></td>
+            <td colspan="13"><hr></td>
         </tr>
         <tr>
             <th>Partida:</th>
@@ -29,13 +29,25 @@
         @if ($itemArticulo->id_cuenta == $itemPartida->id)
         <tr>
             <td scope="row"> {{$itemArticulo->clave}} </td>
-            <td>{{$itemArticulo->descripcion}}</td>
+            <td colspan="4">{{$itemArticulo->descripcion}}</td>
             <td>{{$itemArticulo->descripcion_corta}}</td>
             <td>{{$itemArticulo->existencias}}</td>
             <td>{{$itemArticulo->precio_unitario}}</td>
             <td>{{$itemArticulo->existencias * $itemArticulo->precio_unitario}}</td>
             <td>${{$itemArticulo->existencias * $itemArticulo->precio_unitario}}</td>      
          </tr>
+        @foreach ($dpto_movto as $dptoItem)
+            @if ($dptoItem->id_articulo == $itemArticulo->id)
+                <tr>
+                    <td colspan="3" style="padding-left: 35%">{{$dptoItem->descripcion}}</td>
+                    <td>CONSUMO</td>
+                    <td colspan="2" style="padding-right: 20%">{{$dptoItem->folio}}</td>
+                    <td>{{$dptoItem->cantidad}}</td>
+                    <td>{{$dptoItem->precio_unitario}}</td>
+                    <td>${{$dptoItem->precio_unitario * $dptoItem->cantidad}}</td>
+                </tr>
+            @endif
+        @endforeach
         <!--{{$totalGeneral = $totalGeneral + $itemArticulo->existencias * $itemArticulo->precio_unitario}}}
             {{$cantArtTotal = $cantArtTotal + $itemArticulo->existencias}}-->
         @endif
