@@ -10,7 +10,20 @@
         </tr>
       </thead>
     <tbody>
-
+    @foreach ($articulos as $articulo)
+      <tr>
+        <td>{{$articulo->clave}}</td>
+        <td>{{$articulo->nombre}}</td>
+        <td>{{$articulo->descripcion_corta}}</td>
+      </tr>
+      @foreach ($consumos_p_articulo as $consumo)
+        @if($articulo->clave == $consumo->clave)
+          <tr>
+            <td></td>
+          </tr>
+        @endif
+      @endforeach
+    @endforeach
     
     </tbody>
 </table>

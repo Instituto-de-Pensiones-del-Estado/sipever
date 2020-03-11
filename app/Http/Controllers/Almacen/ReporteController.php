@@ -243,23 +243,70 @@ class ReporteController extends Controller
             $ruta = "almacen.reportes.reporte_relacion_consumos_articulo";
             $headers=['CODIF.','DESCRIPCION','VALE','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'DEPARTAMENTO'];
             $papel = 'letter';
-            $orientacion='portrait';
+            $orientacion='landscape';
             /**
              * CONSULTAS A LA BD
+             * Se definen las variables usadas con sus respectivos equivalentes en SQL.
              * 
-             * @deptos: Departamentos centrales del IPE
-             * @partidas: Partidas de artículos que existen en el IPE
-             * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
-             * descripción, unidad de medida, cantidad, costo unitario e importe.
-             * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_arti: Cantidad total de artículos en un período.
-             * @total_importe: Importe total de los consumos.
+             * @consumos_p_articulo: Refleja la estructura usada en el reporte para representar los consumos por artículos.
+             * SELECT clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion 
+             * FROM consumos 
+             * INNER JOIN detalles 
+             * INNER JOIN cat_oficinas 
+             * INNER JOIN cat_articulos 
+             * WHERE consumos.id_oficina = cat_oficinas.id 
+             * AND consumos.id_consumo = detalles.id_consumo 
+             * AND detalles.id_articulo = cat_articulos.id 
+             * GROUP BY clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion
+             * 
+             * @partidas: Partidas que tuvieron consumos en el período correspondiente
+             * SELECT sscta, cat_cuentas_contables.nombre  
+             * FROM cat_cuentas_contables 
+             * INNER JOIN cat_articulos 
+             * INNER JOIN consumos 
+             * INNER JOIN detalles
+             * WHERE cat_cuentas_contables.id = cat_articulos.id_cuenta
+             * AND cat_articulos.id = detalles.id_articulo
+             * AND consumos.id_consumo = detalles.id_consumo
+             * GROUP BY sscta, nombre
+             * 
+             * @articulos: Artículos que tuvieron consumos en el período correspondiente
+             * SELECT  clave, cat_articulos. descripcion AS nombre 
+             * FROM cat_articulos
+             * INNER JOIN detalles
+             * WHERE cat_articulos.id = detalles.id_articulo
+             * group BY clave, nombre
              */
+
+            $consumos_p_articulo = DB :: table('consumos')
+                ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->join('cat_oficinas', 'consumos.id_oficina', '=', 'cat_oficinas.id')
+                ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->select('clave', 'cat_articulos.descripcion as nombre', 'consumos.folio', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal',
+                         'cat_oficinas.descripcion', 'cat_articulos.id_cuenta')
+                ->orderBy('nombre')
+                ->get();
             
-            //dd($deptos);
+            $partidas = DB :: table('cat_cuentas_contables')
+                ->join('cat_articulos', 'cat_cuentas_contables.id', '=', 'cat_articulos.id_cuenta')
+                ->join('detalles', 'cat_articulos.id', '=', 'detalles.id_articulo')
+                ->join('consumos', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->select('sscta', 'cat_cuentas_contables.nombre')
+                ->groupBy('sscta', 'cat_cuentas_contables.nombre')
+                ->get();
+            
+            $articulos = DB :: table('cat_articulos')
+                ->join('detalles', 'cat_articulos.id', '=', 'detalles.id_articulo')
+                ->join('cat_unidades_almacen', 'cat_unidades_almacen.id', '=', 'cat_articulos.id_unidad')
+                ->select('clave', 'cat_articulos.descripcion as nombre', 'cat_unidades_almacen.descripcion_corta')
+                ->groupBy('clave', 'nombre', 'cat_unidades_almacen.descripcion_corta')
+                ->get();
+
+            
+            //dd($consumos_p_articulo);
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos_p_articulo', 'articulos', 'partidas',  'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
@@ -293,8 +340,6 @@ class ReporteController extends Controller
              * AND detalles.id_articulo = cat_articulos.id 
              * GROUP BY clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion
              */
-            
-             $consumos_p_articulo = 
             //dd($deptos);
 
             //Creando PDF con DOMPDF
