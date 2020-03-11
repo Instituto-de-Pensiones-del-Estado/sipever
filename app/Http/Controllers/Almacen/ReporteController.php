@@ -150,13 +150,13 @@ class ReporteController extends Controller
 
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
-            $total_articulos = DB :: table ('detalles')
+            $total_arti = DB :: table ('detalles')
                 ->sum('detalles.cantidad');
             $total_importe = DB :: table('detalles')
                 ->sum('detalles.subtotal');          
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_articulos',
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_arti',
                                          'total_importe', 'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
@@ -184,7 +184,7 @@ class ReporteController extends Controller
              * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
              * descripción, unidad de medida, cantidad, costo unitario e importe.
              * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_articulos: Cantidad total de artículos en un período.
+             * @total_arti: Cantidad total de artículos en un período.
              * @total_importe: Importe total de los consumos.
              */
             $deptos = DB :: table('cat_oficinas')
@@ -213,17 +213,17 @@ class ReporteController extends Controller
                         'detalles.subtotal', 'cat_articulos.id_cuenta')
                 ->where('periodos.estatus', '=', 1)
                 ->get();
-            //dd($consumos);
+            //dd($partidas);
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
-            $total_articulos = DB :: table ('detalles')
+            $total_arti = DB :: table ('detalles')
                 ->sum('detalles.cantidad');
             $total_importe = DB :: table('detalles')
                 ->sum('detalles.subtotal');
             //dd($deptos);
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_articulos',
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_arti',
                                          'total_importe', 'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
@@ -235,12 +235,12 @@ class ReporteController extends Controller
             
         }
         /**
-         * REPORTE DE CONSUMOS POR ARTICULO
+         * REPORTE RELACIÓN DE CONSUMOS POR ARTICULO
          */
         elseif ($consArt == "checked") {
             $mensaje = 'Reporte de consumos por artículo';
             $nombre_archivo="REPCONSART";
-            $ruta = "almacen.reportes.reporte_consumos_articulo";
+            $ruta = "almacen.reportes.reporte_relacion_consumos_articulo";
             $headers=['CODIF.','DESCRIPCION','VALE','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'DEPARTAMENTO'];
             $papel = 'letter';
             $orientacion='portrait';
@@ -252,7 +252,7 @@ class ReporteController extends Controller
              * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
              * descripción, unidad de medida, cantidad, costo unitario e importe.
              * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_articulos: Cantidad total de artículos en un período.
+             * @total_arti: Cantidad total de artículos en un período.
              * @total_importe: Importe total de los consumos.
              */
             
@@ -282,16 +282,21 @@ class ReporteController extends Controller
             /**
              * CONSULTAS A LA BD
              * 
-             * @deptos: Departamentos centrales del IPE
-             * @partidas: Partidas de artículos que existen en el IPE
-             * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
-             * descripción, unidad de medida, cantidad, costo unitario e importe.
-             * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_articulos: Cantidad total de artículos en un período.
-             * @total_importe: Importe total de los consumos.
+             * La siguiente consulta en SQL es el equivalente a las consultas hechas con DB:
+             * SELECT clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion 
+             * FROM consumos 
+             * INNER JOIN detalles 
+             * INNER JOIN cat_oficinas 
+             * INNER JOIN cat_articulos 
+             * WHERE consumos.id_oficina = cat_oficinas.id 
+             * AND consumos.id_consumo = detalles.id_consumo 
+             * AND detalles.id_articulo = cat_articulos.id 
+             * GROUP BY clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion
              */
             
+             $consumos_p_articulo = 
             //dd($deptos);
+
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
             $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
@@ -311,29 +316,53 @@ class ReporteController extends Controller
             $mensaje = 'Reporte auxiliar de almacén general';
             $nombre_archivo="REPAUXALM";
             $ruta = "almacen.reportes.reporte_auxiliar";
-            $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'INV. FIN'];
+            $headers=['CODIF.','DESCRIPCION', 'DEPARTAMENTO', 'MOVTO', 'NO. VALE','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'INV. FIN'];
             $papel = 'letter';
             $orientacion='landscape';
 
-            $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')
-                        ->orderBy('cat_cuentas_contables.sscta', 'asc')
-                        ->get();  
-            $articulos = DB::table('cat_articulos')
-                        ->orderBy('cat_articulos.clave', 'asc')
-                        ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                        ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
-                        ->where('existencias','>',0)
-                        ->get();
-            //dd($articulos);
+            /**
+             * CONSULTAS A LA BD
+             * 
+             * @partidas: Partidas de artículos que existen en el IPE
+             * @articulos: cantidad de articulos en existencia que hay en el IPE 
+             * @dpto_movto: movientos que se han hecho por departamentos por cada uno de los arituculos
+             */
+            
 
+            $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')
+                ->orderBy('cat_cuentas_contables.sscta', 'asc')
+                ->get();  
+            $articulos = DB::table('cat_articulos')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->select('cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                ->where('existencias','>',0)
+                ->orderBy('cat_articulos.clave', 'asc')
+                ->get();
+            $dpto_movto = DB::table('c_pedido_consumo')
+                ->join('cat_oficinas', 'c_pedido_consumo.id_oficina', '=', 'cat_oficinas.id')
+                ->join('d_pedido_consumo', 'c_pedido_consumo.id_pedido_consumo', '=', 'd_pedido_consumo.id_pedido_consumo_d')
+                ->join('periodos', 'c_pedido_consumo.id_periodo', '=', 'periodos.id_periodo')
+                ->join('cat_articulos', 'd_pedido_consumo.id_articulo', '=', 'cat_articulos.id')
+                ->where('periodos.no_mes', '=', [$numMesInicio])
+                ->select('c_pedido_consumo.tipo_movimiento','c_pedido_consumo.folio', 'd_pedido_consumo.cantidad', 'd_pedido_consumo.id_articulo', 'cat_oficinas.descripcion', 'cat_articulos.precio_unitario')
+                ->get();
+            //dd($dpto_movto);
             if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
             }else{
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
             }
 
-            //Usando dompdf
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos' ))->setPaper($papel, $orientacion);
+            //Usando dompdf 
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'dpto_movto'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
             
         }
         /**
@@ -534,6 +563,14 @@ class ReporteController extends Controller
             $papel = 'letter';
             $orientacion='landscape';
 
+             /**
+             * CONSULTAS A LA BD
+             * 
+             * @partidas: Partidas de artículos que existen en el IPE
+             * @articulos: cantidad de articulos en existencia que hay en el IPE 
+             * 
+             */
+
             $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')
                         ->orderBy('cat_cuentas_contables.sscta', 'asc')
                         ->get();  
@@ -550,7 +587,15 @@ class ReporteController extends Controller
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
             }
             
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'))->setPaper($papel, $orientacion);
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
         }
         /**
          * CONCENTRADO DE CONSUMOS POR ARTÍCULO
@@ -558,10 +603,20 @@ class ReporteController extends Controller
         elseif ($consArticulo == "checked"){
             $mensaje = 'Concentrado de consumos por artículo';
             $nombre_archivo="CONCENTCONSARTI";
-            $ruta = "almacen.reportes.cons_p_articulo";
+            $ruta = "almacen.concentrados.cons_p_articulo";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
+
+            /**
+             * CONSULTAS A LA BD
+             * 
+             * @articulos: articulos consumidos durante los periodos establecidos
+             * @total_art: articulos consumidos durante los periodo establecidos con informacion extra 
+             * @t_tipos_art: total de articulos que fueron consumidos
+             * 
+             */
+
             $total_art = DB::table('cat_articulos')
                     ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
                     ->join('d_pedido_consumo', 'cat_articulos.id' ,'=', 'd_pedido_consumo.id_articulo')
@@ -595,15 +650,21 @@ class ReporteController extends Controller
                     ->get()->count();
             
             
-            //dd($t_tipos_art);
             if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
             }else{
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
             }
 
-            $pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos','total_art', 'orientacion','numMesInicio','mesFin', 't_tipos_art' ))->setPaper($papel, $orientacion);
-
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos','total_art', 'orientacion','numMesInicio','mesFin', 't_tipos_art' ));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
         }
         /**
          * CONCENTRADO DE COMPRAS POR ARTÍCULO
@@ -611,7 +672,7 @@ class ReporteController extends Controller
         elseif ($compArticulo == "checked"){
             $mensaje = 'Concentrado de compras por artículo';
             $nombre_archivo="CONCENTCOMPART";
-            $ruta = "almacen.reportes.compras_p_articulo";
+            $ruta = "almacen.concentrados.compras_p_articulo";
             if($mesIni > 6) {
                 $headers = ['CODIF.', 'DESCRIPCIÓN','JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE', 'TOTAL SEMESTRAL'];
             }else{
@@ -626,7 +687,7 @@ class ReporteController extends Controller
         elseif ($existArticulo == "checked"){
             $mensaje = 'Concentrado de existencias por artículo';
             $nombre_archivo="CONCENTEXISTART";
-            $ruta = "almacen.reportes.existencias_p_articulo";
+            $ruta = "almacen.concentrados.existencias_p_articulo";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
@@ -661,7 +722,7 @@ class ReporteController extends Controller
         elseif ($consAreaArt == "checked"){
             $mensaje = 'Concentrado de consumos por área y artículo';
             $nombre_archivo="CONCENTCONSAART";
-            $ruta = "almacen.reportes.consumos_p_area";
+            $ruta = "almacen.concentrados.consumos_p_area";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
@@ -677,12 +738,12 @@ class ReporteController extends Controller
             return $pdf->stream($nombre_archivo.".pdf");
 
         }/**
-         * CONCENTRADO DE CONSUMOS DE ARTÍCULO ÁREA POR AREA
+         * CONCENTRADO DE CONSUMOS DE ARTÍCULO POR AREA
          */
         elseif ($consArtArea == "checked"){
             $mensaje = 'Concentrado de consumos de artículo por área';
             $nombre_archivo="CONCENTCONSARTA";
-            $ruta = "almacen.reportes.consumos_p_area";
+            $ruta = "almacen.concentrados.consumos_p_art_area";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
@@ -703,7 +764,7 @@ class ReporteController extends Controller
         elseif ($gastoDepto == "checked"){
             $mensaje = 'Concentrado de gastos a la fecha por departamento';
             $nombre_archivo="CONCENTGASTDEPTO";
-            $ruta = "almacen.reportes.gasto_depto";
+            $ruta = "almacen.concentrados.gasto_depto";
             $headers = ['UBPP', 'DEPARTAMENTO', 'ESC. Y OFNA.', 'FORM. IMPR. ', 'MAT. COMP. ', 'MAT. IMPR. ', 'MAT. LIMP. ', 'MAT. FERRET. ', 'M. FOT. CIN.', 'IMPORTE TOTAL'];
             $papel = 'legal';
             $orientacion='landscape';

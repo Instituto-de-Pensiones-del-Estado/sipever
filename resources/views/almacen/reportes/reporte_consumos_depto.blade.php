@@ -91,12 +91,14 @@
                         <th style="border-top: 2px solid #dee2e6"></th>
                         <th style="border-top: 2px solid #dee2e6">{{$t_importe_partida}}</th>
                     </tr>
+                    <td></td>
                     @break
                     @endif
                 @endforeach
                 <!-- TERMINA EL FOREACH CONDICIONAL -->
 
                 <!-- Se usan variables contadoras para imprimir los totales por partida, depto. y en total. -->
+                <!-- Se reinician los valores de algunas para evitar mala acumulación -->
                 @php
                     $t_consumos_depto += $t_consumos_partida;
                     $t_arts_depto += $t_arts_partida;
@@ -117,10 +119,16 @@
                         <th style="border-top: 2px solid #dee2e6">ARTÍCULOS:</th>
                         <th style="border-top: 2px solid #dee2e6">{{$t_arts_depto}}</th>
                         <th style="border-top: 2px solid #dee2e6"></th>
-                        <th style="border-top: 2px solid #dee2e6">{{$t_importe_depto}}</th>
+                        <th style="border-top: 2px solid #dee2e6">{{$t_importe_depto}}
+                        <div class="page-break"></div>
+                        </th>
+                        
             </tr>
+            <td colspan="7" style="border-bottom: 2px solid #dee2e6"></td>
+            
 
             <!-- Se usan variables contadoras para imprimir los totales por partida, depto. y en total. -->
+            <!-- Se reinician los valores de algunas para evitar mala acumulación -->
             @php
                 $t_consumos_general += $t_consumos_depto;
                 $t_arts_general += $t_arts_depto;
@@ -130,12 +138,15 @@
                 $t_arts_depto=0;
                 $t_importe_depto=0;
             @endphp
+            
     @endforeach
     <!-- TERMINA FOREACH DEPARTAMENTOS -->
     </tbody>
 </table style="border-bottom: 2px solid #dee2e6; text-align: left;">
-    
-<table border="0">
+
+<!-- TABLA RESUMEN POR PARTIDAS -->
+<!-- La siguiente tabla es la suma de los consumos por partida y al final se muestran los totales de todos los consumos-->
+<table border="0s">
     <thead>
         <tr>
             <th>TOTAL DE ARTÍCULOS POR PARTIDAS</th>
@@ -144,17 +155,34 @@
         </tr>
     </thead>
     <tbody>
+        <!-- FOREACH PARTIDAS -->
+        <!-- Se usa para imprimir los consumos (artículos e importe) por partida --> 
         @foreach($partidas as $resumen_partidas)
+            @foreach ($consumos as $contador_consumos)
+                @if($resumen_partidas->id == $contador_consumos->id_cuenta)
+                    @php
+                        $t_arts_partida += $contador_consumos->cantidad;
+                        $t_importe_partida += $contador_consumos->subtotal;
+                    @endphp
+                @endif
+            @endforeach
             <tr>
                 <td>{{$resumen_partidas->sscta}} {{$resumen_partidas->nombre}}</td>
-                <td>20</td>
-                <td>20</td>
+                <td>{{$t_arts_partida}}</td>
+                <td>{{$t_importe_partida}}</td>
             </tr>
+
+            @php
+                $t_arts_partida=0;
+                $t_importe_partida=0;
+            @endphp
         @endforeach
+        <!-- TERMINA FOREACH PARTIDAS -->
     </tbody>
     <th colspan="2">{{$total_consumos}} CONSUMOS</th>
     <th colspan="2">ARTÍCULOS: {{$total_articulos}}</th>
-    <th colspan="4">IMPORTE TOTAL: {{$total_importe}}</th>-->
+    <th colspan="4">IMPORTE TOTAL: {{$total_importe}}</th>
+<!-- TERMINA TABLA RESUMEN POR PARTIDAS -->
 
 
 
