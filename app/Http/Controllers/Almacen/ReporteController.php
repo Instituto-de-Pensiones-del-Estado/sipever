@@ -366,6 +366,7 @@ class ReporteController extends Controller
                     ->where('detalles.tipo_movimiento', '=', 3)
                     ->join('cat_articulos', 'cat_articulos.id', '=', 'detalles.id_articulo')
                     ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
                     ->groupBy('cat_cuentas_contables.sscta')
                     ->selectRaw(' cat_cuentas_contables.sscta as sscta, count(detalles.tipo_movimiento) as count ')
                     ->get();
@@ -430,9 +431,11 @@ class ReporteController extends Controller
             $mensaje = 'Simulación de actualización de compras';
             $nombre_archivo="REPSIMCOM";
             $ruta = "almacen.reportes.reporte_simulacion_compras";
-            $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT. INICIAL','CANT. ADQ.','CANT. TOTAL'];
+            $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT. INICIAL', 'COSTO UNIT.','CANT. ADQ.', 'COSTO UNIT.','CANT. TOTAL', 'COSTO PROMEDIO',];
             $papel = 'letter';
             $orientacion='portrait';
+
+            
             
             $pdf = new Dompdf();
             $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'pdf', 'orientacion'));
