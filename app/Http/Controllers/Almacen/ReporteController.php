@@ -213,7 +213,7 @@ class ReporteController extends Controller
                         'detalles.subtotal', 'cat_articulos.id_cuenta')
                 ->where('periodos.estatus', '=', 1)
                 ->get();
-            //dd($consumos);
+            //dd($partidas);
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
             $total_articulos = DB :: table ('detalles')
