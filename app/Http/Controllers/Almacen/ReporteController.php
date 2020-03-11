@@ -235,12 +235,12 @@ class ReporteController extends Controller
             
         }
         /**
-         * REPORTE DE CONSUMOS POR ARTICULO
+         * REPORTE RELACIÓN DE CONSUMOS POR ARTICULO
          */
         elseif ($consArt == "checked") {
             $mensaje = 'Reporte de consumos por artículo';
             $nombre_archivo="REPCONSART";
-            $ruta = "almacen.reportes.reporte_consumos_articulo";
+            $ruta = "almacen.reportes.reporte_relacion_consumos_articulo";
             $headers=['CODIF.','DESCRIPCION','VALE','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'DEPARTAMENTO'];
             $papel = 'letter';
             $orientacion='portrait';
@@ -282,16 +282,21 @@ class ReporteController extends Controller
             /**
              * CONSULTAS A LA BD
              * 
-             * @deptos: Departamentos centrales del IPE
-             * @partidas: Partidas de artículos que existen en el IPE
-             * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
-             * descripción, unidad de medida, cantidad, costo unitario e importe.
-             * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_articulos: Cantidad total de artículos en un período.
-             * @total_importe: Importe total de los consumos.
+             * La siguiente consulta en SQL es el equivalente a las consultas hechas con DB:
+             * SELECT clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion 
+             * FROM consumos 
+             * INNER JOIN detalles 
+             * INNER JOIN cat_oficinas 
+             * INNER JOIN cat_articulos 
+             * WHERE consumos.id_oficina = cat_oficinas.id 
+             * AND consumos.id_consumo = detalles.id_consumo 
+             * AND detalles.id_articulo = cat_articulos.id 
+             * GROUP BY clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion
              */
             
+             $consumos_p_articulo = 
             //dd($deptos);
+
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
             $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
@@ -587,7 +592,7 @@ class ReporteController extends Controller
         elseif ($consArticulo == "checked"){
             $mensaje = 'Concentrado de consumos por artículo';
             $nombre_archivo="CONCENTCONSARTI";
-            $ruta = "almacen.reportes.cons_p_articulo";
+            $ruta = "almacen.concentrados.cons_p_articulo";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
@@ -656,7 +661,7 @@ class ReporteController extends Controller
         elseif ($compArticulo == "checked"){
             $mensaje = 'Concentrado de compras por artículo';
             $nombre_archivo="CONCENTCOMPART";
-            $ruta = "almacen.reportes.compras_p_articulo";
+            $ruta = "almacen.concentrados.compras_p_articulo";
             if($mesIni > 6) {
                 $headers = ['CODIF.', 'DESCRIPCIÓN','JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE', 'TOTAL SEMESTRAL'];
             }else{
@@ -671,7 +676,7 @@ class ReporteController extends Controller
         elseif ($existArticulo == "checked"){
             $mensaje = 'Concentrado de existencias por artículo';
             $nombre_archivo="CONCENTEXISTART";
-            $ruta = "almacen.reportes.existencias_p_articulo";
+            $ruta = "almacen.concentrados.existencias_p_articulo";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
@@ -706,7 +711,7 @@ class ReporteController extends Controller
         elseif ($consAreaArt == "checked"){
             $mensaje = 'Concentrado de consumos por área y artículo';
             $nombre_archivo="CONCENTCONSAART";
-            $ruta = "almacen.reportes.consumos_p_area";
+            $ruta = "almacen.concentrados.consumos_p_area";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
@@ -722,12 +727,12 @@ class ReporteController extends Controller
             return $pdf->stream($nombre_archivo.".pdf");
 
         }/**
-         * CONCENTRADO DE CONSUMOS DE ARTÍCULO ÁREA POR AREA
+         * CONCENTRADO DE CONSUMOS DE ARTÍCULO POR AREA
          */
         elseif ($consArtArea == "checked"){
             $mensaje = 'Concentrado de consumos de artículo por área';
             $nombre_archivo="CONCENTCONSARTA";
-            $ruta = "almacen.reportes.consumos_p_area";
+            $ruta = "almacen.concentrados.consumos_p_art_area";
             $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
             $papel = 'legal';
             $orientacion='landscape';
@@ -748,7 +753,7 @@ class ReporteController extends Controller
         elseif ($gastoDepto == "checked"){
             $mensaje = 'Concentrado de gastos a la fecha por departamento';
             $nombre_archivo="CONCENTGASTDEPTO";
-            $ruta = "almacen.reportes.gasto_depto";
+            $ruta = "almacen.concentrados.gasto_depto";
             $headers = ['UBPP', 'DEPARTAMENTO', 'ESC. Y OFNA.', 'FORM. IMPR. ', 'MAT. COMP. ', 'MAT. IMPR. ', 'MAT. LIMP. ', 'MAT. FERRET. ', 'M. FOT. CIN.', 'IMPORTE TOTAL'];
             $papel = 'legal';
             $orientacion='landscape';
