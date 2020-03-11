@@ -243,23 +243,70 @@ class ReporteController extends Controller
             $ruta = "almacen.reportes.reporte_relacion_consumos_articulo";
             $headers=['CODIF.','DESCRIPCION','VALE','UNIDAD','CANT.','COSTO UNIT.','IMPORTE', 'DEPARTAMENTO'];
             $papel = 'letter';
-            $orientacion='portrait';
+            $orientacion='landscape';
             /**
              * CONSULTAS A LA BD
+             * Se definen las variables usadas con sus respectivos equivalentes en SQL.
              * 
-             * @deptos: Departamentos centrales del IPE
-             * @partidas: Partidas de artículos que existen en el IPE
-             * @consumos: Detalles de los consumos/vales correspondientes a un mes. Incluye: folio, partida, clave del artículo,
-             * descripción, unidad de medida, cantidad, costo unitario e importe.
-             * @total_consumos: Suma del total de consumos/vales en un período.
-             * @total_arti: Cantidad total de artículos en un período.
-             * @total_importe: Importe total de los consumos.
+             * @consumos_p_articulo: Refleja la estructura usada en el reporte para representar los consumos por artículos.
+             * SELECT clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion 
+             * FROM consumos 
+             * INNER JOIN detalles 
+             * INNER JOIN cat_oficinas 
+             * INNER JOIN cat_articulos 
+             * WHERE consumos.id_oficina = cat_oficinas.id 
+             * AND consumos.id_consumo = detalles.id_consumo 
+             * AND detalles.id_articulo = cat_articulos.id 
+             * GROUP BY clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion
+             * 
+             * @partidas: Partidas que tuvieron consumos en el período correspondiente
+             * SELECT sscta, cat_cuentas_contables.nombre  
+             * FROM cat_cuentas_contables 
+             * INNER JOIN cat_articulos 
+             * INNER JOIN consumos 
+             * INNER JOIN detalles
+             * WHERE cat_cuentas_contables.id = cat_articulos.id_cuenta
+             * AND cat_articulos.id = detalles.id_articulo
+             * AND consumos.id_consumo = detalles.id_consumo
+             * GROUP BY sscta, nombre
+             * 
+             * @articulos: Artículos que tuvieron consumos en el período correspondiente
+             * SELECT  clave, cat_articulos. descripcion AS nombre 
+             * FROM cat_articulos
+             * INNER JOIN detalles
+             * WHERE cat_articulos.id = detalles.id_articulo
+             * group BY clave, nombre
              */
+
+            $consumos_p_articulo = DB :: table('consumos')
+                ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->join('cat_oficinas', 'consumos.id_oficina', '=', 'cat_oficinas.id')
+                ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->select('clave', 'cat_articulos.descripcion as nombre', 'consumos.folio', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal',
+                         'cat_oficinas.descripcion', 'cat_articulos.id_cuenta')
+                ->orderBy('nombre')
+                ->get();
             
-            //dd($deptos);
+            $partidas = DB :: table('cat_cuentas_contables')
+                ->join('cat_articulos', 'cat_cuentas_contables.id', '=', 'cat_articulos.id_cuenta')
+                ->join('detalles', 'cat_articulos.id', '=', 'detalles.id_articulo')
+                ->join('consumos', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->select('sscta', 'cat_cuentas_contables.nombre')
+                ->groupBy('sscta', 'cat_cuentas_contables.nombre')
+                ->get();
+            
+            $articulos = DB :: table('cat_articulos')
+                ->join('detalles', 'cat_articulos.id', '=', 'detalles.id_articulo')
+                ->join('cat_unidades_almacen', 'cat_unidades_almacen.id', '=', 'cat_articulos.id_unidad')
+                ->select('clave', 'cat_articulos.descripcion as nombre', 'cat_unidades_almacen.descripcion_corta')
+                ->groupBy('clave', 'nombre', 'cat_unidades_almacen.descripcion_corta')
+                ->get();
+
+            
+            //dd($consumos_p_articulo);
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos_p_articulo', 'articulos', 'partidas',  'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
@@ -293,8 +340,6 @@ class ReporteController extends Controller
              * AND detalles.id_articulo = cat_articulos.id 
              * GROUP BY clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion
              */
-            
-             $consumos_p_articulo = 
             //dd($deptos);
 
             //Creando PDF con DOMPDF
@@ -395,57 +440,76 @@ class ReporteController extends Controller
                       ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
                       ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                       ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'compras.no_factura', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal', 'cat_articulos.id_cuenta')
-                      ->where('periodos.estatus', '=', 1)
+                     /* ->where('periodos.estatus', '=', 1)*/
+                     ->where('periodos.no_mes', '=', [$numMesInicio])
                       ->get();
             //dd($articulos); 
 
 
             $total_movimientos = DB::table('detalles')
                     ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
                     ->join('cat_articulos', 'cat_articulos.id', '=', 'detalles.id_articulo')
                     ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                     ->groupBy('cat_cuentas_contables.sscta')
                     ->selectRaw(' cat_cuentas_contables.sscta as sscta, count(detalles.tipo_movimiento) as count ')
                     ->get();
 
             $total_cantidades = DB::table('detalles')
                     ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
                     ->join('cat_articulos', 'cat_articulos.id', '=', 'detalles.id_articulo')
                     ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                     ->groupBy('cat_cuentas_contables.sscta')
                     ->selectRaw('cat_cuentas_contables.sscta as sscta, sum(detalles.cantidad) as sum_cantidad ')
                     ->get();
                     
             $total_subtotales = DB::table('detalles')
                     ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
                     ->join('cat_articulos', 'cat_articulos.id', '=', 'detalles.id_articulo')
                     ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                     ->groupBy('cat_cuentas_contables.sscta')
                     ->selectRaw('cat_cuentas_contables.sscta as sscta, sum(detalles.subtotal) as sum_subtotal ')
                     ->get();  
 
             $total_movimientos_general = DB::table('detalles')
                     ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                     ->selectRaw('count(detalles.tipo_movimiento) as count ')
                     ->get();  
                     
             $total_cantidades_general = DB::table('detalles')
                     ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                     ->selectRaw('sum(detalles.cantidad) as sum_cantidad ')
                     ->get();  
 
             $total_subtotales_general = DB::table('detalles')
                     ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                     ->selectRaw('sum(detalles.subtotal) as sum_subtotal')
                     ->get();                 
                    
            //dd($total_cantidades_general);    
 
-            /*if($periodo){
+            if($periodo){
                 $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
             }else{
                 $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
-            }*/
+            }
 
             //Usando dompdf
             //$pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'total_movimientos', 'total_cantidades', 'total_subtotales', 'total_movimientos_general', 'total_cantidades_general', 'total_subtotales_general'))->setPaper($papel, $orientacion);
@@ -468,9 +532,29 @@ class ReporteController extends Controller
             $mensaje = 'Simulación de actualización de compras';
             $nombre_archivo="REPSIMCOM";
             $ruta = "almacen.reportes.reporte_simulacion_compras";
-            $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT. INICIAL','CANT. ADQ.','CANT. TOTAL'];
+            $headers=['CODIF.','DESCRIPCION','UNIDAD','CANT. INICIAL', 'COSTO UNIT.','CANT. ADQ.', 'COSTO UNIT.','CANT. TOTAL', 'COSTO PROMEDIO',];
             $papel = 'letter';
             $orientacion='portrait';
+
+            $articulos = DB::table('cat_articulos')
+                ->join('detalles', 'cat_articulos.id', '=', 'detalles.id_articulo')
+                ->join('inventario_inicial_final', 'detalles.id_articulo', '=', 'inventario_inicial_final.id_articulo')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
+                ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'inventario_inicial_final.cant_inicial', 'inventario_inicial_final.precio_inicial', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal')
+               /* ->where('periodos.estatus', '=', 1)*/
+                ->where('periodos.no_mes', '=', [$numMesInicio])
+                ->orderBy('compras.no_factura',  'desc')
+                ->get(); 
+                
+            dd($articulos);    
+            
+            if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
+            }
             
             $pdf = new Dompdf();
             $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'pdf', 'orientacion'));
@@ -501,7 +585,8 @@ class ReporteController extends Controller
                 ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
                 ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                 ->select('compras.no_factura', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal')
-                ->where('periodos.estatus', '=', 1)
+               /* ->where('periodos.estatus', '=', 1)*/
+                ->where('periodos.no_mes', '=', [$numMesInicio])
                 ->orderBy('compras.no_factura',  'desc')
                 ->get();
 
@@ -509,19 +594,33 @@ class ReporteController extends Controller
 
             $total_movimientos_general = DB::table('detalles')
                     ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                     ->selectRaw('count(detalles.tipo_movimiento) as count ')
                     ->get();  
                     
             $total_cantidades_general = DB::table('detalles')
                     ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                     ->selectRaw('sum(detalles.cantidad) as sum_cantidad ')
                     ->get();  
 
             $total_subtotales_general = DB::table('detalles')
                     ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                     ->selectRaw('sum(detalles.subtotal) as sum_subtotal')
                     ->get(); 
-                 
+
+            if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$yearInicio} al mes de {$mesF} de {$yearFin}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$yearInicio}";
+            }     
             
             $pdf = new Dompdf();
             $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'articulos', 'total_movimientos_general', 'total_cantidades_general', 'total_subtotales_general', 'pdf', 'orientacion'));
