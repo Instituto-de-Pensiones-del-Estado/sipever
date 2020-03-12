@@ -23,6 +23,7 @@ var close = document.getElementsByClassName("closebtn");
     }
 
     var forms = document.getElementsByClassName('partidaForm');
+    
     for(var i = 0, length1 = forms.length; i < length1; i++){
         forms[i].id=`partidaForm${i}`;
     }
@@ -77,18 +78,22 @@ var close = document.getElementsByClassName("closebtn");
         for (var i = 0; i < contadores.length; i++) {
             contadores[i]=0;
         }
-        for (let index = 0; index < botones.length; index++) {
+        for (let index = 1; index < botones.length; index++) {
             var panel_aux = document.getElementById("Partida"+index);
+           // console.log(panel_aux);
+            
             var boton_guardar_aux = panel_aux.getElementsByClassName('btn-submit')[0];
+            
             boton_guardar_aux.addEventListener('click', function(event){
                 var form_aux = document.getElementById(`partidaForm${index}`);
-                if(form_aux.checkValidity()){
-                    console.log(index);
+                console.log(form_aux);
+                /*if(form_aux.checkValidity()){
+                  console.log('Entrando');
                     event.preventDefault();
                     if(!validateEach(index)){
                         alert('Los datos ingresados son incorrectos');
                     }
-                }
+                }*/
             });
             var form_aux = document.getElementById(`partidaForm${index}`);
             var boton_cancelar_aux = form_aux.getElementsByClassName('btn-cancel')[0];
@@ -182,7 +187,7 @@ function cerrarPaneles(btn_editar, btn_eliminar){
     }
 }
 
-function validateEach(index){
+/*function validateEach(index){
 
     var partidaCta = $(`#partidaCta${index}`);
     var partidaScta = $(`#partidaScta${index}`);
@@ -221,7 +226,7 @@ function validateEach(index){
     }
 
     return true;
-}
+}*/
 
 
 function validateNew(){
