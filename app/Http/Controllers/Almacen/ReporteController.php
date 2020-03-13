@@ -363,12 +363,15 @@ class ReporteController extends Controller
              */
             
 
-            $partidas = DB::table('cat_cuentas_contables')->select('id','sscta','nombre')
+            $partidas = DB::table('cat_cuentas_contables')
+                ->select('id','sscta','nombre')
                 ->orderBy('cat_cuentas_contables.sscta', 'asc')
                 ->get();  
             $articulos = DB::table('cat_articulos')
                 ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                ->select('cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                ->join('inventario_inicial_final', 'cat_articulos.id', '=', 'inventario_inicial_final.id_articulo')
+                ->select('cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion','cat_articulos.existencias', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.precio_unitario',
+                'cat_articulos.id_cuenta', 'inventario_inicial_final.cant_inicial' )
                 ->where('existencias','>',0)
                 ->orderBy('cat_articulos.clave', 'asc')
                 ->get();
@@ -379,6 +382,12 @@ class ReporteController extends Controller
                 ->join('cat_articulos', 'd_pedido_consumo.id_articulo', '=', 'cat_articulos.id')
                 ->where('periodos.no_mes', '=', [$numMesInicio])
                 ->select('c_pedido_consumo.tipo_movimiento','c_pedido_consumo.folio', 'd_pedido_consumo.cantidad', 'd_pedido_consumo.id_articulo', 'cat_oficinas.descripcion', 'cat_articulos.precio_unitario')
+                ->get();
+            $compras = DB::table('compras')
+                ->join('detalles', 'compras.id_compra', '=', 'detalles.id_compra')
+                ->join('periodos', 'compras.id_periodo', '=', 'periodos.id_periodo')
+                ->where('periodos.no_mes', '=', [$numMesInicio])
+                ->select('detalles.id_articulo', 'detalles.tipo_movimiento', 'detalles.cantidad', 'detalles.precio_unitario')
                 ->get();
             //dd($dpto_movto);
             if($periodo){
