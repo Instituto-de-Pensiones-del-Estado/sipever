@@ -106,16 +106,18 @@ class PartidaController extends Controller
         $cta = $input['cta'];
         $scta = $input['scta'];
         $sscta = $input['sscta'];
-        $ctaarmo = str_replace('.','',$input['ctaarmo']);
-        /*if (!is_numeric($cta) || !is_numeric($scta) || !is_numeric($sscta) || !is_numeric($ctaarmo)){
+        
+        $ctaarmo = $input['ctaarmo'];
+        //dd($ctaarmo);
+        if (!is_numeric($cta) || !is_numeric($scta) || !is_numeric($sscta) || !is_numeric(str_replace('.','',$ctaarmo))){
              return back()->with('warning','Los datos ingresdos no son correctos');
-        }*/
+        }
         $nombre_aux = $input['nombre'];
         $nombre =strtoupper($nombre_aux);
         $grupo=$input['grupo'];
-       /* if(strlen($grupo)>1){
+        if(strlen($grupo)>1){
             return back()->with('warning','Los datos ingresdos no son correctos');
-        }*/
+        }
         $nomarmo_aux = $input['nomarmo'];
         $nomarmo = strtoupper($nomarmo_aux);
 

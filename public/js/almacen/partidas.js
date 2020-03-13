@@ -78,7 +78,7 @@ var close = document.getElementsByClassName("closebtn");
         for (var i = 0; i < contadores.length; i++) {
             contadores[i]=0;
         }
-        for (let index = 1; index < botones.length; index++) {
+        for (let index = 0; index < botones.length; index++) {
             var panel_aux = document.getElementById("Partida"+index);
            // console.log(panel_aux);
             
@@ -86,14 +86,19 @@ var close = document.getElementsByClassName("closebtn");
             
             boton_guardar_aux.addEventListener('click', function(event){
                 var form_aux = document.getElementById(`partidaForm${index}`);
-                console.log(form_aux);
-                /*if(form_aux.checkValidity()){
-                  console.log('Entrando');
-                    event.preventDefault();
+               
+                
+               if(form_aux.checkValidity()){
+                    //console.log(form_aux.checkValidity());
+                    
+                   // console.log('realizado');
                     if(!validateEach(index)){
+                        event.preventDefault();
                         alert('Los datos ingresados son incorrectos');
                     }
-                }*/
+                   
+                }
+                
             });
             var form_aux = document.getElementById(`partidaForm${index}`);
             var boton_cancelar_aux = form_aux.getElementsByClassName('btn-cancel')[0];
@@ -153,6 +158,7 @@ var close = document.getElementsByClassName("closebtn");
     crearPartida.addEventListener("click",function(event){
         var newPartida = document.getElementById('newPartida');
         if(newPartida.checkValidity()){
+            
            if(!validateNew()){
             console.log('linea 153');
               event.preventDefault();
@@ -187,8 +193,9 @@ function cerrarPaneles(btn_editar, btn_eliminar){
     }
 }
 
-/*function validateEach(index){
+function validateEach(index){
 
+   // console.log('bienvenido');
     var partidaCta = $(`#partidaCta${index}`);
     var partidaScta = $(`#partidaScta${index}`);
     var partidaSscta = $(`#partidaSscta${index}`);
@@ -197,7 +204,9 @@ function cerrarPaneles(btn_editar, btn_eliminar){
     var partidaCtaArm = $(`#partidaCtaArm${index}`);
     var partidaNombreArm = $(`#partidaNombreArm${index}`);
 
+    
     if(isNaN(parseFloat(partidaCta.val().replace('.','')))){
+        
         return false;
     }
 
@@ -205,6 +214,7 @@ function cerrarPaneles(btn_editar, btn_eliminar){
         return false;
     }
 
+      
     if(isNaN(parseFloat(partidaSscta.val().replace('.','')))){
         return false;
     }
@@ -225,8 +235,9 @@ function cerrarPaneles(btn_editar, btn_eliminar){
         return false;
     }
 
+    //console.log('see you');    
     return true;
-}*/
+}
 
 
 function validateNew(){
