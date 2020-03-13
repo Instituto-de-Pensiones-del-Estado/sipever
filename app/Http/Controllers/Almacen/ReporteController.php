@@ -216,14 +216,14 @@ class ReporteController extends Controller
             //dd($partidas);
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
-            $total_arti = DB :: table ('detalles')
+            $total_articulos = DB :: table ('detalles')
                 ->sum('detalles.cantidad');
             $total_importe = DB :: table('detalles')
                 ->sum('detalles.subtotal');
             //dd($deptos);
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_arti',
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_articulos',
                                          'total_importe', 'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
@@ -246,36 +246,17 @@ class ReporteController extends Controller
             $orientacion='landscape';
             /**
              * CONSULTAS A LA BD
-             * Se definen las variables usadas con sus respectivos equivalentes en SQL.
-             * 
              * @consumos_p_articulo: Refleja la estructura usada en el reporte para representar los consumos por artículos.
-             * SELECT clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion 
-             * FROM consumos 
-             * INNER JOIN detalles 
-             * INNER JOIN cat_oficinas 
-             * INNER JOIN cat_articulos 
-             * WHERE consumos.id_oficina = cat_oficinas.id 
-             * AND consumos.id_consumo = detalles.id_consumo 
-             * AND detalles.id_articulo = cat_articulos.id 
-             * GROUP BY clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion
              * 
              * @partidas: Partidas que tuvieron consumos en el período correspondiente
-             * SELECT sscta, cat_cuentas_contables.nombre  
-             * FROM cat_cuentas_contables 
-             * INNER JOIN cat_articulos 
-             * INNER JOIN consumos 
-             * INNER JOIN detalles
-             * WHERE cat_cuentas_contables.id = cat_articulos.id_cuenta
-             * AND cat_articulos.id = detalles.id_articulo
-             * AND consumos.id_consumo = detalles.id_consumo
-             * GROUP BY sscta, nombre
              * 
              * @articulos: Artículos que tuvieron consumos en el período correspondiente
-             * SELECT  clave, cat_articulos. descripcion AS nombre 
-             * FROM cat_articulos
-             * INNER JOIN detalles
-             * WHERE cat_articulos.id = detalles.id_articulo
-             * group BY clave, nombre
+             * 
+             * @total_consumos: Suma del total de consumos/vales en un período.
+             * 
+             * @total_articulos: Cantidad total de artículos en un período.
+             * 
+             * @total_importe: Importe total de los consumos.
              */
 
             $consumos_p_articulo = DB :: table('consumos')
@@ -291,8 +272,8 @@ class ReporteController extends Controller
                 ->join('cat_articulos', 'cat_cuentas_contables.id', '=', 'cat_articulos.id_cuenta')
                 ->join('detalles', 'cat_articulos.id', '=', 'detalles.id_articulo')
                 ->join('consumos', 'consumos.id_consumo', '=', 'detalles.id_consumo')
-                ->select('sscta', 'cat_cuentas_contables.nombre')
-                ->groupBy('sscta', 'cat_cuentas_contables.nombre')
+                ->select('cat_cuentas_contables.id', 'sscta', 'cat_cuentas_contables.nombre')
+                ->groupBy('cat_cuentas_contables.id','sscta', 'cat_cuentas_contables.nombre')
                 ->get();
             
             $articulos = DB :: table('cat_articulos')
@@ -302,11 +283,19 @@ class ReporteController extends Controller
                 ->groupBy('clave', 'nombre', 'cat_unidades_almacen.descripcion_corta')
                 ->get();
 
+            $total_consumos = DB :: table('consumos')
+                ->count('consumos.id_consumo');
+            $total_articulos = DB :: table ('detalles')
+                ->sum('detalles.cantidad');
+            $total_importe = DB :: table('detalles')
+                ->sum('detalles.subtotal');
+
             
             //dd($consumos_p_articulo);
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos_p_articulo', 'articulos', 'partidas',  'pdf', 'orientacion'));
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos_p_articulo', 'articulos', 'partidas', 'total_consumos', 
+                'total_articulos', 'total_importe',  'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
