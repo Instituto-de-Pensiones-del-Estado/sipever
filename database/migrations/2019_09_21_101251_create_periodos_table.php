@@ -17,7 +17,8 @@ class CreatePeriodosTable extends Migration
             $table->increments('id_periodo');
             $table->integer('no_mes');
             $table->year('anio');
-            $table->boolean('estatus');
+            $table->boolean('estatus')->default(1);
+            $table->timestamps();
         });
     }
 

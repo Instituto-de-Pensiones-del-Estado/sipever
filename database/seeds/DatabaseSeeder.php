@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
         // Seed Usuarios
         $this->call(UserTableSeeder::class);
 
+        // Seed Periodo
+        $this->call(PeriodoAlmacenTableSeeder::class);
+
         // Los usuarios necesitarán los roles previamente generados
         //$this->call(CatSistemasTableSeeder::class);
         // Los usuarios necesitarán los roles previamente generados
@@ -62,6 +65,9 @@ class DatabaseSeeder extends Seeder
 
          // Seed Empleados
          $this->call(CatEmpleadosTableSeeder::class);
+
+        // Seed Inventario Inicial Final
+        $this->call(InventInicFinTableSeeder::class);
 
 
     }

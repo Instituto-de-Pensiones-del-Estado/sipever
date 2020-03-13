@@ -58,7 +58,6 @@ $(document).ready(function(){
 						time += 1800 * 1000;
 						now.setTime(time);
 		        		document.cookie=`__office_session=${resultdata['officeCode']}; expires=${now.toUTCString()}; path=/`;
-		        		window.location.reload();
 		        	}else if(resultdata['code']==400){
 		        		alert('Código inválido');
 		        		$("#loaderLogin").hide();
