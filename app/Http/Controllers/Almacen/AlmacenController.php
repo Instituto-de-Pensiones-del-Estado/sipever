@@ -101,7 +101,6 @@ class AlmacenController extends Controller
                 'officeCode' => null, 
             );
         }
-        //dd($respuesta);
         return json_encode($respuesta);
     }
 }
