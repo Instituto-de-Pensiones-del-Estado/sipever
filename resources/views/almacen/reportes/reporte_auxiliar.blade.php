@@ -29,22 +29,32 @@
         @if ($itemArticulo->id_cuenta == $itemPartida->id)
         <tr>
             <td scope="row"> {{$itemArticulo->clave}} </td>
-            <td colspan="4">{{$itemArticulo->descripcion}}</td>
+            <td colspan="4" style="padding-right: 30%; text-align: left">{{$itemArticulo->descripcion}}</td>
             <td>{{$itemArticulo->descripcion_corta}}</td>
             <td>{{$itemArticulo->existencias}}</td>
             <td>{{$itemArticulo->precio_unitario}}</td>
             <td>{{$itemArticulo->existencias * $itemArticulo->precio_unitario}}</td>
             <td>${{$itemArticulo->existencias * $itemArticulo->precio_unitario}}</td>      
          </tr>
-        @foreach ($dpto_movto as $dptoItem)
-            @if ($dptoItem->id_articulo == $itemArticulo->id)
+        @foreach ($total_consumos as $consumo)
+            @if ($consumo->id_articulo == $itemArticulo->id)
                 <tr>
-                    <td colspan="3" style="padding-left: 35%">{{$dptoItem->descripcion}}</td>
-                    <td>CONSUMO</td>
-                    <td colspan="2" style="padding-right: 20%">{{$dptoItem->folio}}</td>
-                    <td>{{$dptoItem->cantidad}}</td>
-                    <td>{{$dptoItem->precio_unitario}}</td>
-                    <td>${{$dptoItem->precio_unitario * $dptoItem->cantidad}}</td>
+                    <td colspan="3" style="padding-left: 30%">{{$consumo->descripcion}}</td>
+                    <td style="padding-left: 5%">CONSUMO</td>
+                    <td colspan="2" style="padding-right: 20%;  text-align: left">{{$consumo->folio}}</td>
+                    <td>{{$consumo->cantidad}}</td>
+                    <td>{{$consumo->precio_unitario}}</td>
+                    <td>${{$consumo->subtotal}}</td>
+                </tr>
+            @endif
+        @endforeach
+        @foreach ($total_compras as $compra)
+            @if ($compra->id_articulo == $itemArticulo->id)
+                <tr>
+                    <td colspan="6" style="padding-left: 35%;">COMPRA</td>
+                    <td>{{$compra->cantidad}}</td>
+                    <td>{{$compra->precio_unitario}}</td>
+                    <td>${{$compra->subtotal}}</td>
                 </tr>
             @endif
         @endforeach
