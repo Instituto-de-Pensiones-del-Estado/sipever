@@ -89,6 +89,7 @@ class ValeController extends Controller
                     $query->execute();
                     $query->closeCursor();
                 }elseif($tipo == 3){
+                   
                     $query = $db->prepare('CALL sp_compra_articulos(?,?,?)');
                     $query->bindParam(1,$id_generado);
                     $query->bindParam(2,$articulos[$i]);
