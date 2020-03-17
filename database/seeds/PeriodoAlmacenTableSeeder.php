@@ -20,4 +20,5 @@ class PeriodoAlmacenTableSeeder extends Seeder
 			Periodo::create($periodo);
 		}
     }
+    
 }
