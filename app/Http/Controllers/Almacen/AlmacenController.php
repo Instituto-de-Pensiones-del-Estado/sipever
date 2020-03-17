@@ -94,13 +94,13 @@ class AlmacenController extends Controller
                 'officeCode' => $codigo,
                 'result' => $result,
             );
+            
         }else{
             $respuesta = array(
                 'code' => 400,
                 'officeCode' => null, 
             );
         }
-        
         return json_encode($respuesta);
     }
 }
