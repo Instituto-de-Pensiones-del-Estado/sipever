@@ -9,6 +9,8 @@
 @php
     $totalGeneral = 0;
     $cantArtTotal = 0;
+    $precio_unit = 0;
+    $band = false;
 @endphp
 <tbody>
 @foreach ($partidas as $itemPartida)
@@ -31,10 +33,10 @@
             <td scope="row"> {{$itemArticulo->clave}} </td>
             <td colspan="4" style="padding-right: 30%; text-align: left">{{$itemArticulo->descripcion}}</td>
             <td>{{$itemArticulo->descripcion_corta}}</td>
-            <td>{{$itemArticulo->existencias}}</td>
+            <td>{{$itemArticulo->cant_inicial}}</td>
             <td>{{$itemArticulo->precio_unitario}}</td>
-            <td>{{$itemArticulo->existencias * $itemArticulo->precio_unitario}}</td>
-            <td>${{$itemArticulo->existencias * $itemArticulo->precio_unitario}}</td>      
+            <td>{{$itemArticulo->cant_inicial * $itemArticulo->precio_unitario}}</td>
+            <td>${{$itemArticulo->cant_inicial * $itemArticulo->precio_unitario}}</td>      
          </tr>
         @foreach ($total_consumos as $consumo)
             @if ($consumo->id_articulo == $itemArticulo->id)
@@ -45,6 +47,8 @@
                     <td>{{$consumo->cantidad}}</td>
                     <td>{{$consumo->precio_unitario}}</td>
                     <td>${{$consumo->subtotal}}</td>
+                    {{$band = true}}
+                    {{$precio_unit = $consumo->precio_unitario }}
                 </tr>
             @endif
         @endforeach
@@ -55,9 +59,21 @@
                     <td>{{$compra->cantidad}}</td>
                     <td>{{$compra->precio_unitario}}</td>
                     <td>${{$compra->subtotal}}</td>
+                    {{$band = true}}
                 </tr>
             @endif
         @endforeach
+
+        @if ($band == true)
+            <td scope="row"> {{$itemArticulo->clave}} </td>
+            <td colspan="4" style="padding-right: 30%; text-align: left">{{$itemArticulo->descripcion}}</td>
+            <td>{{$itemArticulo->descripcion_corta}}</td>
+            <td>{{$itemArticulo->existencias}}</td>
+            <td>{{$precio_unit}}</td>
+            <td>{{$itemArticulo->existencias * $precio_unit}}</td>
+               
+        @endif
+        
         <!--{{$totalGeneral = $totalGeneral + $itemArticulo->existencias * $itemArticulo->precio_unitario}}}
             {{$cantArtTotal = $cantArtTotal + $itemArticulo->existencias}}-->
         @endif

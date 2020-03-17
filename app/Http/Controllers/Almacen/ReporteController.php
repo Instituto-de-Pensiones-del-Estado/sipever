@@ -372,9 +372,9 @@ class ReporteController extends Controller
                 ->join('periodos', 'inventario_inicial_final.id_periodo', '=', 'periodos.id_periodo')
                 ->join('cat_articulos', 'inventario_inicial_final.id_articulo', '=', 'cat_articulos.id')
                 ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                ->select('cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion','cat_articulos.existencias', 
+                ->select('cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion','inventario_inicial_final.existencias', 
                 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.precio_unitario',
-                'cat_articulos.id_cuenta')
+                'cat_articulos.id_cuenta', 'inventario_inicial_final.cant_inicial')
                 ->where('cat_articulos.existencias','>',0)
                 ->where('periodos.no_mes', '=', '4')
                 ->where('periodos.anio', '=', '2020')
