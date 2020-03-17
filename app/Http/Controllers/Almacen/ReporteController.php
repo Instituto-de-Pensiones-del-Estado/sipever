@@ -367,6 +367,8 @@ class ReporteController extends Controller
              * @partidas: Partidas de artículos que existen en el IPE
              * @articulos: cantidad de articulos en existencia que hay en el IPE 
              * @total_consumos: movientos que se han hecho por departamentos por cada uno de los arituculos
+             * @total_compras: compras de un determinado mes y año hechos por un departamente de cada articulo
+             * 
              */
             
             $partidas = DB::table('cat_cuentas_contables')
@@ -379,12 +381,12 @@ class ReporteController extends Controller
                 ->join('periodos', 'inventario_inicial_final.id_periodo', '=', 'periodos.id_periodo')
                 ->join('cat_articulos', 'inventario_inicial_final.id_articulo', '=', 'cat_articulos.id')
                 ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                ->select('cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion','inventario_inicial_final.existencias', 
+                ->select('cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion','cat_articulos.existencias', 
                 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.precio_unitario',
                 'cat_articulos.id_cuenta', 'inventario_inicial_final.cant_inicial')
                 ->where('cat_articulos.existencias','>',0)
-                ->where('periodos.no_mes', '=', '4')
-                ->where('periodos.anio', '=', '2020')
+                ->where('periodos.no_mes', '=', [$numMesInicio])
+                ->where('periodos.anio', '=', [$yearInicio])
                 ->orderBy('cat_articulos.clave', 'asc')
                 ->get();
             //dd($articulos);
