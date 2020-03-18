@@ -318,22 +318,29 @@ class ReporteController extends Controller
             /**
              * CONSULTAS A LA BD
              * 
-             * La siguiente consulta en SQL es el equivalente a las consultas hechas con DB:
-             * SELECT clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion 
-             * FROM consumos 
-             * INNER JOIN detalles 
-             * INNER JOIN cat_oficinas 
-             * INNER JOIN cat_articulos 
-             * WHERE consumos.id_oficina = cat_oficinas.id 
-             * AND consumos.id_consumo = detalles.id_consumo 
-             * AND detalles.id_articulo = cat_articulos.id 
-             * GROUP BY clave, detalles.descripcion, consumos.folio, detalles.cantidad, detalles.precio_unitario, detalles.subtotal, cat_oficinas.descripcion
+             * @deptos: Todos los departamentos con clave de oficina '0' que existen en el IPE.
+             * 
+             * @consumos_p_depto: Refleja la estructura usada por el reporte. Todos los consumos relacionados por depto, partida y detalles. 
              */
-            //dd($deptos);
+            $deptos = DB :: table('cat_oficinas')
+            ->join('consumos', 'cat_oficinas.ubpp', '=', 'consumos.ubpp_consumo')
+            ->select('cat_oficinas.ubpp', 'cat_oficinas.descripcion')
+            ->where('oficina', '=', 0)
+            ->groupBy('ubpp', 'descripcion')
+            ->get();
+
+            $consumos_p_depto= DB :: table('cat_oficinas')
+                ->join('consumos', 'consumos.id_oficina', '=', 'cat_oficinas.id')
+                ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                ->select('cta', 'scta', 'sscta', 'subtotal', 'cat_oficinas.ubpp as oficina_ubpp')
+                ->get();
+            dd($consumos_p_depto);
 
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'consumos_p_depto',  'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
