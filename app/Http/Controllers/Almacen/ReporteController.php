@@ -150,13 +150,13 @@ class ReporteController extends Controller
 
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
-            $total_arti = DB :: table ('detalles')
+            $total_articulos = DB :: table ('detalles')
                 ->sum('detalles.cantidad');
             $total_importe = DB :: table('detalles')
                 ->sum('detalles.subtotal');          
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_arti',
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'total_consumos', 'total_articulos',
                                          'total_importe', 'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
@@ -265,8 +265,10 @@ class ReporteController extends Controller
                 ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
                 ->select('clave', 'cat_articulos.descripcion as nombre', 'consumos.folio', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal',
                          'cat_oficinas.descripcion', 'cat_articulos.id_cuenta')
+                ->where('detalles.tipo_movimiento', '=', '1')
                 ->orderBy('nombre')
                 ->get();
+            //dd($consumos_p_articulo);    
             
             $partidas = DB :: table('cat_cuentas_contables')
                 ->join('cat_articulos', 'cat_cuentas_contables.id', '=', 'cat_articulos.id_cuenta')
@@ -280,6 +282,7 @@ class ReporteController extends Controller
                 ->join('detalles', 'cat_articulos.id', '=', 'detalles.id_articulo')
                 ->join('cat_unidades_almacen', 'cat_unidades_almacen.id', '=', 'cat_articulos.id_unidad')
                 ->select('clave', 'cat_articulos.descripcion as nombre', 'cat_unidades_almacen.descripcion_corta')
+                ->where('detalles.tipo_movimiento', '=', '1')
                 ->groupBy('clave', 'nombre', 'cat_unidades_almacen.descripcion_corta')
                 ->get();
 
