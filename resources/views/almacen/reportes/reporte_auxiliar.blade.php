@@ -101,21 +101,6 @@
 <tr>
     <td colspan="13"><hr></td>
 </tr>
-<tr>
-    <td colspan="13"><hr></td>
-</tr>
-<tr>
-    <td colspan="13"><hr></td>
-</tr>
-<tr>
-    <td colspan="13"><hr></td>
-</tr>
-<tr>
-    <td colspan="13"><hr></td>
-</tr>
-<tr>
-    <td colspan="13"><hr></td>
-</tr>
     <tr>
         <td colspan="6" style="text-align: right; font-size: 13px; font-weight: bold; padding-left: 70% ">CANTIDAD DE MOVIMIENTOS</td>
         <td style="font-size: 13px; font-weight: bold; text-align: center">CANTIDAD DE ARTICULOS</td>
@@ -155,14 +140,14 @@
     <td colspan="2" style="font-weight: bold; text-align: center">
         {{$importe_final = ($subtotal_inicial + $subtotal_compras) - $subtotal_consumos}}
     </td>
-    <td colspan="2" style="font-weight: bold; text-align: center">{{$total_inv_final}}</td>
+    <td colspan="2" style="font-weight: bold; text-align: center">{{$importe_final}}</td>
 </tr>
 <tr>
     <td colspan="13" style="padding-left: 70%"><hr></td>
 </tr>
 <tr>
     <td colspan="9" style="font-weight: bold; font-size: 13px; text-align: right"> DIFERENCIA: </td>
-    <td style="font-weight: bold; text-align: center">{{$importe_final - $total_inv_final }}</td>
+    <td style="font-weight: bold; text-align: center">{{$importe_final - $importe_final }}</td>
 </tr>
 </tbody>
 <footer>
