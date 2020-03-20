@@ -87,30 +87,30 @@
                               <span class="checkmark"></span>
                             </label>
                         </div>
-                        <div class="form-check" style="display: flex;">
+                       <!-- <div class="form-check" style="display: flex;">
                             <label class="check-container">Reporte de consumos por artículo
                               <input type="checkbox" class="checkReporte" type="checkbox" name="consArt" value="" id="reporteConsArt">
                               <span class="checkmark"></span>
                             </label>
-                        </div>
+                        </div> 
                         <div class="form-check" style="display: flex;">
                             <label class="check-container">Resumen de consumos por departamento
                               <input type="checkbox" class="checkReporte" type="checkbox" name="reConsDepto" value="" id="resumenConsDepto">
                               <span class="checkmark"></span>
                             </label>
-                        </div>
+                        </div> -->
                         <div class="form-check" style="display: inline-flex;">
                             <label class="check-container">Reporte final de existencias
                               <input type="checkbox" class="checkReporte" type="checkbox" name="existencias" value="" id="reporteValidacionConsumo">
                               <span class="checkmark"></span>
                             </label>
                         </div>
-                        <div class="form-check" style="display: inline-flex;">
+                        <!--<div class="form-check" style="display: inline-flex;">
                             <label class="check-container">Simulación de compras
                               <input type="checkbox" class="checkReporte" type="checkbox" name="simCompras" value="" id="reporteSimulacionCompras">
                               <span class="checkmark"></span>
                             </label>
-                        </div>
+                        </div> 
                         <div class="form-check" style="display: inline-flex;">
                             <label class="check-container">Reporte para validación de consumos
                               <input type="checkbox" class="checkReporte" type="checkbox" name="validConsumo" value="" id="reporteExistencias">
@@ -122,34 +122,34 @@
                               <input type="checkbox" class="checkReporte" type="checkbox" name="validCompras" value="" id="reporteValCompras">
                               <span class="checkmark"></span>
                             </label>
-                        </div>
+                        </div> 
                         <div class="form-check" style="display: inline-flex;">
                             <label class="check-container">Reporte para validación de traslados
                               <input type="checkbox" class="checkReporte" type="checkbox" name="validTraslados" value="" id="reporteValTraslados">
                               <span class="checkmark"></span>
                             </label>
-                        </div>
+                        </div> -->
                     </div>
                     <div>
                         <h4 class="separador">Concentrados</h4>
-                        <div class="form-check" style="display: inline-flex;">
+                        <!--<div class="form-check" style="display: inline-flex;">
                             <label class="check-container">Compras por artículo
                               <input type="checkbox" class="checkReporte" type="checkbox" name="compArticulo" value="" id="comprasArticulo">
                               <span class="checkmark"></span>
                             </label>
-                        </div>
+                        </div> -->
                         <div class="form-check" style="display: inline-flex;">
                             <label class="check-container">Consumos por área y por artículo
                               <input type="checkbox" class="checkReporte" type="checkbox" name="consAreaArt" value="" id="consumosAreaArt">
                               <span class="checkmark"></span>
                             </label>
                         </div>
-                        <div class="form-check" style="display: inline-flex;">
+                        <!--<div class="form-check" style="display: inline-flex;">
                             <label class="check-container">Consumos de artículo por área
                               <input type="checkbox" class="checkReporte" type="checkbox" name="consArtArea" value="" id="consumosArtArea">
                               <span class="checkmark"></span>
                             </label>
-                        </div>
+                        </div> -->
                         <div class="form-check" style="display: flex;">
                             <label class="check-container">Consumos por artículo
                               <input type="checkbox" class="checkReporte" type="checkbox" name="consArticulo" value="" id="consumosArticulo">
