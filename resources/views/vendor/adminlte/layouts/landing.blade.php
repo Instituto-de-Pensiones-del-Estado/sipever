@@ -228,6 +228,122 @@
 					</li>
 
 
+
+					<li class="treeview">
+						<a href="#">
+							<i class="fa fa-share"></i> <span>Áreas</span>
+							<span class="pull-right-container">
+							<i class="fa fa-angle-left pull-right"></i>
+							</span>
+						</a>
+
+						<ul class="treeview-menu">
+							
+							<!-- Dirección General -->
+							<li class="treeview">
+								<!-- Nivel 1 -->
+								<a href="#"><i class="fa fa-circle-o"></i> Dirección General
+									<span class="pull-right-container">
+									<i class="fa fa-angle-left pull-right"></i>
+									</span>
+								</a>
+								<ul class="treeview-menu">
+									<!-- Nivel 2 -->
+									<li><a href="#"><i class="fa fa-circle-o"></i> Directora General</a></li>
+									<li><a href="#"><i class="fa fa-circle-o"></i> Unidad de Género</a></li>
+									<li><a href="#"><i class="fa fa-circle-o"></i> Unidad de Transparencia</a></li>
+								</ul>
+							</li>
+
+							<!-- Subdirección Jurídica -->
+							<li class="treeview">
+								<!-- Nivel 1 -->
+								<a href="#"><i class="fa fa-circle-o"></i> Subdir. Jurídica
+									<span class="pull-right-container">
+									<i class="fa fa-angle-left pull-right"></i>
+									</span>
+								</a>
+								<ul class="treeview-menu">
+									<!-- Nivel 2 -->
+									<li><a href="#"><i class="fa fa-circle-o"></i> Subdirector Jurídico</a></li>
+									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de lo Consultivo</a></li>
+									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de lo Contencioso</a></li>
+									
+								</ul>
+							</li>
+
+							<!-- Subdirección Administrativa -->
+							<li class="treeview">
+								<!-- Nivel 1 -->
+								<a href="#"><i class="fa fa-circle-o"></i> Subdir. Admva.
+									<span class="pull-right-container">
+									<i class="fa fa-angle-left pull-right"></i>
+									</span>
+								</a>
+								<ul class="treeview-menu">
+									<!-- Nivel 2 -->
+									<li><a href="#"><i class="fa fa-circle-o"></i> Subdirector Admvo.</a></li>
+									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de Rec. Humanos</a></li>
+									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de Adquisic. e Invent.</a></li>
+									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de Serv. Grales.</a></li>
+									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de TI</a></li>
+								</ul>
+							</li>
+
+							<!-- Subdirección de Prestaciones Institucionales -->
+							<li class="treeview">
+								<!-- Nivel 1 -->
+								<a href="#"><i class="fa fa-circle-o"></i> Subdir. de Prest. Instit.
+									<span class="pull-right-container">
+									<i class="fa fa-angle-left pull-right"></i>
+									</span>
+								</a>
+								<ul class="treeview-menu">
+									<!-- Nivel 2 -->
+									<li class="treeview">
+										<a href="#"><i class="fa fa-circle-o"></i> Level Two
+											<span class="pull-right-container">
+											<i class="fa fa-angle-left pull-right"></i>
+											</span>
+										</a>
+										<ul class="treeview-menu">
+											<!-- Nivel 3 -->
+											<li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
+											<li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+
+							<!-- Subdirección de Finanzas -->
+							<li class="treeview">
+								<!-- Nivel 1 -->
+								<a href="#"><i class="fa fa-circle-o"></i> Subdir. de Finanzas
+									<span class="pull-right-container">
+									<i class="fa fa-angle-left pull-right"></i>
+									</span>
+								</a>
+								<ul class="treeview-menu">
+									<!-- Nivel 2 -->
+									<li class="treeview">
+										<a href="#"><i class="fa fa-circle-o"></i> Level Two
+											<span class="pull-right-container">
+											<i class="fa fa-angle-left pull-right"></i>
+											</span>
+										</a>
+										<ul class="treeview-menu">
+											<!-- Nivel 3 -->
+											<li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
+											<li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							
+						</ul>
+					</li>
+
+
 					<!-- DESCARGAR INFORMACIÓN -->
 
 					<li class=""><a href="{!! url('/descargar_informacion') !!}"><i class="fa fa-download"></i> <span>Descargar Información</span></a></li>
