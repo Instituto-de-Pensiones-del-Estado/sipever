@@ -722,7 +722,7 @@ class ReporteController extends Controller
             $mensaje = 'Concentrado de consumos por artículo';
             $nombre_archivo="CONCENTCONSARTI";
             $ruta = "almacen.concentrados.cons_p_articulo";
-            $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.', 'TOT. DEL AÑO'];
+            $headers = ['CODIF.', 'DESCRIPCIÓN', 'UNIDAD', 'ENE. ', 'FEB. ', 'MAR. ', 'ABR. ', 'MAY. ', 'JUN. ', 'JUL. ', 'AGO. ', 'SEPT.', 'OCT.', 'NOV.','DIC.'];
             $papel = 'legal';
             $orientacion='landscape';
 
@@ -810,28 +810,50 @@ class ReporteController extends Controller
             $papel = 'legal';
             $orientacion='landscape';
 
-            $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')
+             /**
+             * CONSULTAS A LA BD
+             * 
+             * @total_partidas: Cantidad total de partidas que hay en el IPE 
+             * @total_articulos: Cantidad de articulos que hay en el IPE 
+             * @existenciasArticulos: Cantidad de existencias de los articulos del mes inicio al mes fin  
+             * @estatus_mes: Regresa el numero del mes que esta abierto
+             * 
+             */
+
+            $total_partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')
                 ->orderBy('cat_cuentas_contables.sscta', 'asc')
                 ->get();  
             
-            $articulos = DB::table('inventario_inicial_final')
+            $total_articulos = DB::table('cat_articulos')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->select('cat_articulos.id','cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 
+                'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                ->orderBy('id_cuenta', 'desc')
+                ->get();
+            
+            $existencias_articulos = DB::table('inventario_inicial_final')
                 ->join('periodos', 'inventario_inicial_final.id_periodo', '=', 'periodos.id_periodo')
                 ->join('cat_articulos', 'inventario_inicial_final.id_articulo', '=', 'cat_articulos.id')
-                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                ->whereBetween('no_mes', [$numMesInicio, $mesFin])
                 ->where('periodos.anio', '=', [$yearInicio])
-                ->select('periodos.no_mes','cat_articulos.id', 'cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'inventario_inicial_final.existencias')
-                ->orderBy('cat_articulos.clave', 'asc')
+                ->whereBetween('periodos.no_mes', [$numMesInicio, $mesFin])
+                ->select('cat_articulos.id', 'periodos.no_mes', 'inventario_inicial_final.existencias')
+                ->get();            
+
+            $estatus_mes = DB::table('periodos')
+                ->where('estatus', '=', 1)
+                ->select('no_mes')
                 ->get();
 
-            $periodos = DB::table('periodos')
-                ->whereBetween('no_mes', [$numMesInicio, $mesFin])
-                ->where('periodos.anio', '=', [$yearInicio])
-                ->select('no_mes', 'anio')
-                ->get();
-
-
-            dd($periodos);
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion', 'total_partidas', 'total_articulos', 'existencias_articulos','estatus_mes', 'numMesInicio', 'mesFin'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            
+            return $pdf->stream($nombre_archivo.".pdf");
 
         }
         /**
