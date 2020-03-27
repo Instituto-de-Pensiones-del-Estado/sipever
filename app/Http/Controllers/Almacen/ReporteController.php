@@ -899,15 +899,47 @@ class ReporteController extends Controller
             return $pdf->stream($nombre_archivo.".pdf");
 
         }/**
-         * CONCENTRADO DE GASTO POR DEPARTAMENTO
+         * CONCENTRADO DE GASTO POR DEPARTAMENTO A LA FECHA
          */
         elseif ($gastoDepto == "checked"){
             $mensaje = 'Concentrado de gastos a la fecha por departamento';
             $nombre_archivo="CONCENTGASTDEPTO";
             $ruta = "almacen.concentrados.gasto_depto";
+            <!-- Los encabezados son las partidas, estas deberían ser dinamicas, ya que en el documento que tengo las partidas fueron 
+            puestas por que si hizo al menos una compra por oficina, es decir que si en una no se hizo una compra no debería aparacer la 
+            columna de la partida-->
             $headers = ['UBPP', 'DEPARTAMENTO', 'ESC. Y OFNA.', 'FORM. IMPR. ', 'MAT. COMP. ', 'MAT. IMPR. ', 'MAT. LIMP. ', 'MAT. FERRET. ', 'M. FOT. CIN.', 'IMPORTE TOTAL'];
             $papel = 'legal';
             $orientacion='landscape';
+
+             /**
+             * CONSULTAS A LA BD
+             * 
+             * @total_consumos: el total de consumos que se hicieron por departamento u oficina
+             * @total_depto: Cantidad total de departamento u oficinas en el IPE
+             * @total_partidas: Cantidad total de partidas en el IPE
+             * 
+             */
+
+            $total_depto = DB::table('cat_oficinas')
+                ->select('id','ubpp', 'descripcion')
+                ->get();
+
+            $total_partidas = DB::table('cat_cuentas_contables')
+                ->select('id','sscta', 'nombre')
+                ->get();
+
+            <!--aqui recupero el id de la cuenta contable de la compra que se hizo así como de la oficina para ponerla por columna-->
+            $total_consumos = DB::table('periodos')
+                ->where('periodos.no_mes', '=', [$numMesInicio])
+                ->where('periodos.anio', '=', [$yearInicio])
+                ->join('consumos', 'periodos.id_periodo', '=', 'consumos.id_periodo')
+                ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->join('cat_oficinas', 'consumos.id_oficina', '=', 'cat_oficinas.id')
+                ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                ->select('consumos.id_oficina', 'detalles.subtotal', 'detalles.descripcion', 'cat_cuentas_contables.id')
+                ->get();
 
             $pdf = new Dompdf();
             $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
