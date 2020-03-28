@@ -23,6 +23,7 @@ var close = document.getElementsByClassName("closebtn");
     }
 
     var forms = document.getElementsByClassName('partidaForm');
+    
     for(var i = 0, length1 = forms.length; i < length1; i++){
         forms[i].id=`partidaForm${i}`;
     }
@@ -79,16 +80,25 @@ var close = document.getElementsByClassName("closebtn");
         }
         for (let index = 0; index < botones.length; index++) {
             var panel_aux = document.getElementById("Partida"+index);
+           // console.log(panel_aux);
+            
             var boton_guardar_aux = panel_aux.getElementsByClassName('btn-submit')[0];
+            
             boton_guardar_aux.addEventListener('click', function(event){
                 var form_aux = document.getElementById(`partidaForm${index}`);
-                if(form_aux.checkValidity()){
-                    console.log(index);
-                    event.preventDefault();
+               
+                
+               if(form_aux.checkValidity()){
+                    //console.log(form_aux.checkValidity());
+                    
+                   // console.log('realizado');
                     if(!validateEach(index)){
+                        event.preventDefault();
                         alert('Los datos ingresados son incorrectos');
                     }
+                   
                 }
+                
             });
             var form_aux = document.getElementById(`partidaForm${index}`);
             var boton_cancelar_aux = form_aux.getElementsByClassName('btn-cancel')[0];
@@ -148,6 +158,7 @@ var close = document.getElementsByClassName("closebtn");
     crearPartida.addEventListener("click",function(event){
         var newPartida = document.getElementById('newPartida');
         if(newPartida.checkValidity()){
+            
            if(!validateNew()){
             console.log('linea 153');
               event.preventDefault();
@@ -184,6 +195,7 @@ function cerrarPaneles(btn_editar, btn_eliminar){
 
 function validateEach(index){
 
+   // console.log('bienvenido');
     var partidaCta = $(`#partidaCta${index}`);
     var partidaScta = $(`#partidaScta${index}`);
     var partidaSscta = $(`#partidaSscta${index}`);
@@ -192,7 +204,9 @@ function validateEach(index){
     var partidaCtaArm = $(`#partidaCtaArm${index}`);
     var partidaNombreArm = $(`#partidaNombreArm${index}`);
 
+    
     if(isNaN(parseFloat(partidaCta.val().replace('.','')))){
+        
         return false;
     }
 
@@ -200,6 +214,7 @@ function validateEach(index){
         return false;
     }
 
+      
     if(isNaN(parseFloat(partidaSscta.val().replace('.','')))){
         return false;
     }
@@ -220,6 +235,7 @@ function validateEach(index){
         return false;
     }
 
+    //console.log('see you');    
     return true;
 }
 

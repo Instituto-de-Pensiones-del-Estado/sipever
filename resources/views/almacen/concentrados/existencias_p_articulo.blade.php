@@ -1,59 +1,59 @@
 @extends('almacen.reportes.encabezado_reporte')
 @section('content')
-	<tbody>
+<thead>
+    <tr>
+      @foreach($headers as $header)
+          <th style="white-space: normal; padding-top: 20px">{{$header}}</th>
+      @endforeach
+    </tr>
+<tbody>
+	@php
+		$existen = 0;
+	@endphp
+	<!-- Este foreach sirve para obtener una partida de lista -->
+	@foreach ($total_partidas as $partida)
 		<tr>
-			<td>7</td>
-			<td width="250px">ACETATO PARA COPIADORA TAMAÑO CARTA</td>
-			<td >PZA.</td>
-			<td >200</td>
-			<td >136</td>
-			<td >340</td>
-			<td >147</td>
-			<td >0</td>
-			<td >115</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >938</td>
+			<td style="text-align: left; font-size: 13px; font-weight: bold;">PARTIDA: </td>
+			<td style="text-align: left; font-size: 13px; font-weight: bold;">{{$partida->sscta}}</td>
+			<td style="text-align: left; font-size: 13px; font-weight: bold;">{{$partida->nombre}}</td>
 		</tr>
-		<tr>
-			<td>7</td>
-			<td>BOLSA DE LIGAS N°18</td>
-			<td >PZA.</td>
-			<td >16</td>
-			<td >8</td>
-			<td >10</td>
-			<td >7</td>
-			<td >6</td>
-			<td >3</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >938</td>
-		</tr>
-		<tr>
-			<td>7</td>
-			<td>CARTUCHO CYAN P/IMPR.MULTIF. HP PRO 8600 PLUS CM750A 951 Ó 951XL</td>
-			<td >PZA.</td>
-			<td >16</td>
-			<td >8</td>
-			<td >10</td>
-			<td >7</td>
-			<td >6</td>
-			<td >3</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >0</td>
-			<td >938</td>
-		</tr>
-	</tbody>
+		<!-- Este foreach sirve para obtener la información de los articulos -->
+		@foreach ($total_articulos as $articulo_inf)
+			<!-- Este if es para verificar que el articulo pertenece a la partida e ingresar la información del articulo-->
+			@if ($partida->id == $articulo_inf->id_cuenta)
+				<tr>
+					<td>{{$articulo_inf->clave}}</td>
+					<td>{{$articulo_inf->descripcion}}</td>
+					<td>{{$articulo_inf->descripcion_corta}}</td>
+					<!-- Este for sirve para repasar los periodos del articulo del mes que inicio hasta el final -->
+					@for ($i = $numMesInicio; $i <= $mesFin; $i++)
+						<!-- revisamos las existencias de un articulo -->
+						@foreach ($existencias_articulos as $existencia_art)
+							@if ($existencia_art->no_mes == $i && $existencia_art->id == $articulo_inf->id)							
+								@if ($estatus_mes[0]->no_mes == $i)
+									<td>{{$articulo_inf->existencias}}</td>
+									<!--{{$existen = 1}}-->
+								@else
+									<td>{{$existencia_art->existencias}}</td>
+									<!--{{$existen = 1}}-->
+								@endif
+							@endif
+						@endforeach
+						@if ($existen == 0)
+							<td>0</td>
+						@endif
+					@endfor
+						@php
+							$existen = 0;
+						@endphp
+					@for ($i = $mesFin; $i < 12; $i++)
+						<td> 0 </td>
+					@endfor
+				</tr>
+			@endif
+		@endforeach
+	@endforeach
+</tbody>
+<footer>
+</footer>
 @endsection

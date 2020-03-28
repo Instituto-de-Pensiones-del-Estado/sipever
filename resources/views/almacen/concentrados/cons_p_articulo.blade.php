@@ -15,22 +15,26 @@
     $primer_semestre = 0;
     $segundo_semestre = 0;
 @endphp
+<!--Este foreach sirve para repasar cada articulo-->
 @foreach ($total_art as $art)
     <tr>
     <td>{{$art->clave}}</td>
     <td>{{$art->descripcion}}</td>
     <td>{{$art->descripcion_corta}}</td>
+    <!--Este for sirve para ver en que columna del mes esta-->
     @for ($i = $numMesInicio; $i <= $mesFin; $i++)
+        <!--Este foreach sirve para asignar el total de consumos del articulo en el foreach anterior y 
+        sumarle la cantidad a un total del año -->
         @foreach ($articulos as $itemArtC)
             @if ($art->id == $itemArtC->id && $itemArtC->no_mes == $i)
             <!--{{$suma_art = $suma_art + $itemArtC->cantidad}}-->  
             <!--{{$p_total_anio = $p_total_anio + $itemArtC->cantidad}}-->    
             @endif
         @endforeach
-    <td>{{$suma_art}}</td>
-    @php
-        $suma_art = 0;
-    @endphp
+        <td>{{$suma_art}}</td>
+        @php
+            $suma_art = 0;
+        @endphp
     @endfor
     @for ($i = $mesFin; $i <= 11; $i++)
         <td> 0 </td>
@@ -49,6 +53,7 @@
     <td style="font-size: 13px; font-weight: bold;">TIPOS DE ARTICULOS</td>
     <td style=" font-size: 13px; font-weight: bold; ">TOTALES POR MES: </td>
 
+<!--Esta for es para hacer la suma de todos los articulos por periodo-->
 @for ($i = $numMesInicio; $i <= $mesFin; $i++)
         @foreach ($articulos as $itemArtCC)
             @if ($itemArtCC->no_mes == $i )
@@ -61,6 +66,7 @@
         $suma_periodo = 0;
     @endphp
 @endfor
+<!--Esta for solo es para rellenar en 0 todos los periodos que no fueron ocupados-->
 @for ($i = $mesFin; $i <= 11; $i++)
         <td style="font-size: 13px; font-weight: bold;"> 0 </td>
 @endfor
@@ -71,6 +77,7 @@
 </tr>
 <tr>
     <td colspan="4" style="font-size: 13px; font-weight: bold; padding-left: 50%; ">TOTAL DEL PRIMER SEMESTRE: </td>
+    <!--Esta for es para hacer la suma total del primer semestre->
     @for ($i = $numMesInicio; $i <= 6; $i++)
         @foreach ($articulos as $itemArtCC)
             @if ($itemArtCC->no_mes == $i )
@@ -80,6 +87,7 @@
     @endfor
     <td style="font-size: 13px; font-weight: bold;">{{$primer_semestre}}</td>
     <td colspan="4" style="font-size: 13px; font-weight: bold;">TOTAL DEL SEGUNDO SEMESTRE:</td>
+    <!--Esta for es para hacer la suma total del segundo semestre->
     @for ($i = 7; $i <= 12; $i++)
         @foreach ($articulos as $itemArtCC)
             @if ($itemArtCC->no_mes == $i )

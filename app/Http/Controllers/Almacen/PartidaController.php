@@ -40,9 +40,9 @@ class PartidaController extends Controller
         $nomarmo_aux = $request->nomarmo;
         $nomarmo = strtoupper($nomarmo_aux);
 
-        if (!is_numeric($cta) || !is_numeric($scta) || !is_numeric($sscta) || !is_numeric($ctaarmo)){
+        /*if (!is_numeric($cta) || !is_numeric($scta) || !is_numeric($sscta) || !is_numeric($ctaarmo)){
              return back()->with('warning','Los datos ingresdos no son correctos');
-        }
+        }*/
 
         if(strlen($grupo)>1){
             return back()->with('warning','Los datos ingresdos no son correctos');
@@ -101,12 +101,15 @@ class PartidaController extends Controller
      */
     public function update($id)
     {
+        //dd($id);
         $input = Input::only('cta','scta','sscta', 'nombre', 'grupo','ctaarmo', 'nomarmo');
         $cta = $input['cta'];
         $scta = $input['scta'];
         $sscta = $input['sscta'];
-        $ctaarmo = str_replace('.','',$input['ctaarmo']);
-        if (!is_numeric($cta) || !is_numeric($scta) || !is_numeric($sscta) || !is_numeric($ctaarmo)){
+        
+        $ctaarmo = $input['ctaarmo'];
+        //dd($ctaarmo);
+        if (!is_numeric($cta) || !is_numeric($scta) || !is_numeric($sscta) || !is_numeric(str_replace('.','',$ctaarmo))){
              return back()->with('warning','Los datos ingresdos no son correctos');
         }
         $nombre_aux = $input['nombre'];

@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use PDF;
 use DB;
+
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
+
 class PolizaController extends Controller
 {
     /**
@@ -30,6 +35,16 @@ class PolizaController extends Controller
         $conta = $request->input('conta');
         $no_mes = $request->input('numMes');
         $anio = $request->input('year');
+        //$numMesInicio = $request->input('numMes');
+        $mesIni = $this->nombre_mes($no_mes);
+        $periodo = $request->has('numMes') && $request->has('year') ? true : false;
+        $archivo = file_get_contents(public_path("/img_system/low_res_logo.png"));
+        $imagen_b64 = base64_encode($archivo);
+        $logo_b64 = "data:image/png;base64,{$imagen_b64}";
+        $fecha = date("d/M/Y");
+        $hora = date("h:i a");
+        $pdf = null;
+        $tipo = 'reporte';
 
         $mes_nombre = $this->nombre_mes($no_mes);
         $ruta = "";
@@ -42,6 +57,69 @@ class PolizaController extends Controller
             $nombre_archivo="POLIZALMAC";
             $ruta = "almacen.polizas.poliza_almacen";
             $headers = ['CTA.', 'SCTA', 'SSCTA', 'CONCEPTO.', 'CARGOS', 'ABONOS', "TOTALES\n(CONSUMOS)"];
+            $papel = 'letter';
+            $orientacion='portrait';
+
+            $partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')->get();  
+
+            /*$articulos = DB::table('detalles')
+                ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
+                ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'compras.no_factura', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal', 'cat_articulos.id_cuenta')
+            /* ->where('periodos.estatus', '=', 1)
+            ->where('periodos.no_mes', '=', [$numMesInicio])
+                ->get(); */
+            
+            $total_subtotales = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$no_mes])
+                    ->where('periodos.anio', '=', [$anio])
+                    ->join('cat_articulos', 'cat_articulos.id', '=', 'detalles.id_articulo')
+                    ->join('cat_cuentas_contables', 'cat_articulos.id_cuenta', '=', 'cat_cuentas_contables.id')
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
+                    ->groupBy('cat_cuentas_contables.sscta')
+                    ->selectRaw('cat_cuentas_contables.cta as cta, cat_cuentas_contables.scta as scta, cat_cuentas_contables.sscta as sscta, sum(detalles.subtotal) as sum_subtotal ')
+                    ->get();  
+
+            $total_subtotales_general = DB::table('detalles')
+                    ->where('detalles.tipo_movimiento', '=', 3)
+                    ->where('periodos.no_mes', '=', [$no_mes])
+                    ->where('periodos.anio', '=', [$anio])
+                    ->join('compras', 'detalles.id_compra', '=', 'compras.id_compra')
+                    ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
+                    ->selectRaw('sum(detalles.subtotal) as sum_subtotal')
+                    ->get();    
+
+                           
+                   
+          // dd($total_subtotales);    
+
+            if($periodo){
+                $mensaje = "{$mensaje} del mes de {$mesIni} de {$anio} al mes de {$mesIni} de {$anio}";
+            }else{
+                $mensaje = "{$mensaje} correspondiente al mes de {$mesIni} de {$anio}";
+            }
+
+            //Usando dompdf
+            //$pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView($ruta,compact('orientacion','mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas', 'articulos', 'total_movimientos', 'total_cantidades', 'total_subtotales', 'total_movimientos_general', 'total_cantidades_general', 'total_subtotales_general'))->setPaper($papel, $orientacion);
+
+            $pdf = new Dompdf();
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'partidas',  'total_subtotales', 'total_subtotales_general', 'pdf', 'orientacion'));
+            $pdf -> setPaper($papel, $orientacion);
+            $options = new Options();
+            $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
+            $pdf -> setOptions($options);
+            $pdf -> loadHtml($html);
+            $pdf -> render();
+            return $pdf->stream($nombre_archivo.".pdf");
+
+
+
+
+
         }elseif($conta == "checked"){
             $mensaje="Poliza para contabilidad y presupuesto";
             $nombre_archivo="POLIZACONTPRESUP";
