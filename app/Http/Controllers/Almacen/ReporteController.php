@@ -874,7 +874,11 @@ class ReporteController extends Controller
              * @consumos: Hace referencia a los datos necesarios para la construcción del concentrado. Los datos solicitados son: ubpp, departamento, oficina, clave articulo, 
              * descripción del artículo, descripción corta de la unidad del artículo, cantidad de consumo, periodo del consumo y mes del consumo.
              * 
-             * @deptos: Departamentos principales, es decir, con clave '0' de oficina.
+             * @deptos: Departamentos principales, es decir, con clave '0' de oficina. SÍ tuvieron consumos.
+             * 
+             * @oficinas: Todas las oficinas existentes en la BD del IPE
+             * 
+             * @periodos: Períodos dados de alta en la BD del IPE
             */
 
             $consumos = DB :: table('consumos')
@@ -890,18 +894,24 @@ class ReporteController extends Controller
             
             $deptos = DB :: table('cat_oficinas')
                 ->join('consumos', 'cat_oficinas.ubpp', '=', 'consumos.ubpp_consumo')
-                ->select('cat_oficinas.ubpp','cat_oficinas.oficina', 'cat_oficinas.descripcion')
+                ->select('id', 'cat_oficinas.ubpp','cat_oficinas.oficina', 'cat_oficinas.descripcion')
                 ->where('oficina', '=', 0)
                 ->groupBy('ubpp', 'descripcion')
+                ->get();
+
+            $oficinas = DB :: table('cat_oficinas')
+                ->join('consumos', 'consumos.id_oficina', '=', 'cat_oficinas.id')
+                ->select('id', 'ubpp', 'oficina', 'descripcion as nombre_oficina')
+                ->groupBy('id', 'ubpp', 'oficina', 'nombre_oficina')
                 ->get();
 
             $periodos = DB :: table('periodos')
                 ->select('*')
                 ->get();
-            dd($periodos);    
+            //dd($oficinas);    
 
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'deptos',  'pdf', 'orientacion'));
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'deptos', 'oficinas', 'periodos',  'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
@@ -938,9 +948,11 @@ class ReporteController extends Controller
             $mensaje = 'Concentrado de gastos a la fecha por departamento';
             $nombre_archivo="CONCENTGASTDEPTO";
             $ruta = "almacen.concentrados.gasto_depto";
-            <!-- Los encabezados son las partidas, estas deberían ser dinamicas, ya que en el documento que tengo las partidas fueron 
-            puestas por que si hizo al menos una compra por oficina, es decir que si en una no se hizo una compra no debería aparacer la 
-            columna de la partida-->
+            /**
+             * Los encabezados son las partidas, estas deberían ser dinamicas, ya que en el documento que tengo las partidas fueron 
+             * puestas por que si hizo al menos una compra por oficina, es decir que si en una no se hizo una compra no debería aparacer la 
+             * columna de la partida
+             **/
             $headers = ['UBPP', 'DEPARTAMENTO', 'ESC. Y OFNA.', 'FORM. IMPR. ', 'MAT. COMP. ', 'MAT. IMPR. ', 'MAT. LIMP. ', 'MAT. FERRET. ', 'M. FOT. CIN.', 'IMPORTE TOTAL'];
             $papel = 'legal';
             $orientacion='landscape';
@@ -962,7 +974,9 @@ class ReporteController extends Controller
                 ->select('id','sscta', 'nombre')
                 ->get();
 
-            <!--aqui recupero el id de la cuenta contable de la compra que se hizo así como de la oficina para ponerla por columna-->
+            /**
+             * aqui recupero el id de la cuenta contable de la compra que se hizo así como de la oficina para ponerla por columna-->
+             * */
             $total_consumos = DB::table('periodos')
                 ->where('periodos.no_mes', '=', [$numMesInicio])
                 ->where('periodos.anio', '=', [$yearInicio])
