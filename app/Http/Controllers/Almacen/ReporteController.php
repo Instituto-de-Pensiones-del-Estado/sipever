@@ -216,14 +216,14 @@ class ReporteController extends Controller
             //dd($partidas);
             $total_consumos = DB :: table('consumos')
                 ->count('consumos.id_consumo');
-            $total_arti = DB :: table ('detalles')
+            $total_articulos = DB :: table ('detalles')
                 ->sum('detalles.cantidad');
             $total_importe = DB :: table('detalles')
                 ->sum('detalles.subtotal');
             //dd($deptos);
             //Creando PDF con DOMPDF
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_arti',
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'deptos', 'partidas', 'consumos', 'total_consumos', 'total_articulos',
                                          'total_importe', 'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
@@ -236,6 +236,7 @@ class ReporteController extends Controller
         }
         /**
          * REPORTE RELACIÓN DE CONSUMOS POR ARTICULO
+         * ELIMINAR
          */
         elseif ($consArt == "checked") {
             $mensaje = 'Reporte de consumos por artículo';
@@ -318,6 +319,7 @@ class ReporteController extends Controller
         }
         /**
          * RESUMEN DE CONSUMOS POR DEPARTAMENTO
+         * ELIMINAR
          */
         elseif ($reConsDepto == "checked") {
             $mensaje = 'Resumen de consumos por departamento';
@@ -832,8 +834,39 @@ class ReporteController extends Controller
             $papel = 'legal';
             $orientacion='landscape';
 
+            /**CONSULTAS A LA BD 
+             * 
+             * @consumos: Hace referencia a los datos necesarios para la construcción del concentrado. Los datos solicitados son: ubpp, departamento, oficina, clave articulo, 
+             * descripción del artículo, descripción corta de la unidad del artículo, cantidad de consumo, periodo del consumo y mes del consumo.
+             * 
+             * @deptos: Departamentos principales, es decir, con clave '0' de oficina.
+            */
+
+            $consumos = DB :: table('consumos')
+                ->join('detalles', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->join('cat_articulos', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
+                ->join('cat_oficinas', 'consumos.id_oficina', '=', 'cat_oficinas.id')
+                ->join('periodos', 'consumos.id_periodo', '=', 'periodos.id_periodo')
+                ->select('consumos.id_consumo', 'cat_oficinas.ubpp', 'cat_oficinas.oficina', 'cat_oficinas.descripcion as nombre_oficina', 'cat_articulos.descripcion as nombre_articulo'
+                , 'cat_articulos.clave as clave_articulo', 'cat_unidades_almacen.descripcion_corta as unidad_articulo', 'detalles.cantidad', 'periodos.id_periodo'
+                , 'periodos.no_mes', 'periodos.anio')
+                ->get();
+            
+            $deptos = DB :: table('cat_oficinas')
+                ->join('consumos', 'cat_oficinas.ubpp', '=', 'consumos.ubpp_consumo')
+                ->select('cat_oficinas.ubpp','cat_oficinas.oficina', 'cat_oficinas.descripcion')
+                ->where('oficina', '=', 0)
+                ->groupBy('ubpp', 'descripcion')
+                ->get();
+
+            $periodos = DB :: table('periodos')
+                ->select('*')
+                ->get();
+            dd($periodos);    
+
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo',  'pdf', 'orientacion'));
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'deptos',  'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
