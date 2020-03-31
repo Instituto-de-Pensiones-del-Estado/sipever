@@ -879,6 +879,8 @@ class ReporteController extends Controller
              * @oficinas: Todas las oficinas existentes en la BD del IPE
              * 
              * @periodos: Períodos dados de alta en la BD del IPE
+             * 
+             * @articulos: Artículos que tuvieron consumos
             */
 
             $consumos = DB :: table('consumos')
@@ -887,31 +889,49 @@ class ReporteController extends Controller
                 ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
                 ->join('cat_oficinas', 'consumos.id_oficina', '=', 'cat_oficinas.id')
                 ->join('periodos', 'consumos.id_periodo', '=', 'periodos.id_periodo')
-                ->select('consumos.id_consumo', 'cat_oficinas.ubpp', 'cat_oficinas.oficina', 'cat_oficinas.descripcion as nombre_oficina', 'cat_articulos.descripcion as nombre_articulo'
-                , 'cat_articulos.clave as clave_articulo', 'cat_unidades_almacen.descripcion_corta as unidad_articulo', 'detalles.cantidad', 'periodos.id_periodo'
-                , 'periodos.no_mes', 'periodos.anio')
+                ->select('consumos.id_consumo', 'cat_oficinas.id as id_oficina', 'cat_oficinas.ubpp', 'cat_oficinas.oficina', 
+                    'cat_oficinas.descripcion as nombre_oficina', 'cat_articulos.descripcion as nombre_articulo',
+                    'cat_articulos.clave as clave_articulo', 'cat_unidades_almacen.descripcion_corta as unidad_articulo', 
+                    'detalles.cantidad', 'periodos.id_periodo', 'periodos.no_mes')
+                ->where('periodos.anio', '=',[$yearInicio])
                 ->get();
             
             $deptos = DB :: table('cat_oficinas')
                 ->join('consumos', 'cat_oficinas.ubpp', '=', 'consumos.ubpp_consumo')
+                ->join('periodos', 'consumos.id_periodo', '=', 'periodos.id_periodo')
                 ->select('id', 'cat_oficinas.ubpp','cat_oficinas.oficina', 'cat_oficinas.descripcion')
-                ->where('oficina', '=', 0)
+                ->where([
+                    ['oficina', '=', 0],
+                    ['periodos.anio', '=', [$yearInicio]],
+                    ])
                 ->groupBy('ubpp', 'descripcion')
+                ->get();
+            
+            $articulos = DB :: table('cat_articulos')
+                ->join('detalles', 'detalles.id_articulo', '=', 'cat_articulos.id')
+                ->join('consumos', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->join('periodos', 'consumos.id_periodo', '=', 'periodos.id_periodo')
+                ->select('cat_articulos.id as id_articulo', 'cat_articulos.clave', 'cat_articulos.descripcion as nombre_articulo')
+                ->where('periodos.anio', '=', [$yearInicio])
+                ->groupBy('id_articulo', 'cat_articulos.clave', 'nombre_articulo')
                 ->get();
 
             $oficinas = DB :: table('cat_oficinas')
                 ->join('consumos', 'consumos.id_oficina', '=', 'cat_oficinas.id')
+                ->join('periodos', 'consumos.id_periodo', '=', 'periodos.id_periodo')
                 ->select('id', 'ubpp', 'oficina', 'descripcion as nombre_oficina')
+                ->where('periodos.anio', '=', [$yearInicio])
                 ->groupBy('id', 'ubpp', 'oficina', 'nombre_oficina')
                 ->get();
 
             $periodos = DB :: table('periodos')
                 ->select('*')
+                ->where('periodos.anio', '=', [$yearInicio])
                 ->get();
-            //dd($oficinas);    
+            //dd($articulos);    
 
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'deptos', 'oficinas', 'periodos',  'pdf', 'orientacion'));
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'deptos', 'articulos', 'oficinas', 'periodos', 'yearInicio',  'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
