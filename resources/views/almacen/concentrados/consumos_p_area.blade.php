@@ -35,15 +35,19 @@
                 $total_articulos =0;
                 $total_neto =0;
             @endphp
-            <!-- FOREACH ARTÍCULOS -->
+            <!-- FOREACH ARTÍCULOS: repasa por cada uno de los artículos que hayan tenido consumos-->
             @foreach ($articulos as $articulo)
+
+                <!-- FOREACH CONSUMOS: repasa cada uno de los consumos-->
                 @foreach($consumos as $consumo_articulo)
+                    <!-- Condición para designar correctamente los consumos con sus respectivos artículos y oficinas-->
                     @if ($consumo_articulo->clave_articulo == $articulo->clave && 
-                        $consumo_articulo->id_oficina == $oficina->id )
+                        $consumo_articulo->id_oficina == $oficina->id)
                         <tr>
                         <td>{{$articulo->clave}}</td>
                         <td colspan="2">{{$articulo->nombre_articulo}}</td>
                         
+                        <!-- FOR repasa cada uno de los periodos del año y suma los consumos si son del mismo artículo en el mismo periodo--> 
                         @for ($x=1; $x<=12; $x++)
 
                             @foreach ($consumos as $consumo)
@@ -72,6 +76,7 @@
                             $total_articulos =0;
                         @endphp
                         </tr>
+                        <!-- Una vez que repasó un artículo, se rompe el ciclo dentro del IF. Esto es para que no se repitan artículos --> 
                         @break
                     @endif
                 @endforeach
