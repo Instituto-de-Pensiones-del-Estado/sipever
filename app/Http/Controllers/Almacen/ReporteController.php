@@ -928,7 +928,7 @@ class ReporteController extends Controller
                 ->select('*')
                 ->where('periodos.anio', '=', [$yearInicio])
                 ->get();
-            //dd($articulos);    
+            //dd($consumos);    
 
             $pdf = new Dompdf();
             $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'deptos', 'articulos', 'oficinas', 'periodos', 'yearInicio',  'pdf', 'orientacion'));
