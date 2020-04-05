@@ -33,6 +33,7 @@
             @php
                 $acumulador_consumo=0;
                 $total_articulos =0;
+                $total_periodo = array(1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 6 => 0, 7 => 0, 8 => 0, 9 => 0, 10 => 0, 11 => 0, 12 => 0);
                 $total_neto =0;
             @endphp
             <!-- FOREACH ARTÍCULOS: repasa por cada uno de los artículos que hayan tenido consumos-->
@@ -49,26 +50,28 @@
                         
                         <!-- FOR repasa cada uno de los periodos del año y suma los consumos si son del mismo artículo en el mismo periodo--> 
                         @for ($x=1; $x<=12; $x++)
-
-                            @foreach ($consumos as $consumo)
+                            @foreach($consumos as $consumo)
                                 @if ($consumo->clave_articulo == $articulo->clave && 
-                                    $oficina->id == $consumo->id_oficina &&
+                                    $consumo->id_oficina == $oficina->id  &&
                                     $consumo->no_mes == $x)
                                     @php
                                         $acumulador_consumo =+ $consumo->cantidad;
-                                        $total_articulos += $consumo->cantidad;
+                                        print($acumulador_consumo);
+                                        $total_articulos += $consumo->cantidad;                    
                                     @endphp
+                                    
                                 @endif
                             @endforeach
-                        
+
                             <td>{{$acumulador_consumo}}</td>
 
+                        
                             @php
                                 $acumulador_consumo = 0;
                             @endphp
 
                         @endfor
-
+                        
                         <td>{{$total_articulos}}</td>
 
                         @php
@@ -81,7 +84,17 @@
                     @endif
                 @endforeach
             @endforeach
-            
+            <tr>
+                <td>prueba</td>
+                <td>TIPOS DE ARTICULOS</td>
+                <td>ARTÍCULOS POR OFICINA</td>
+                @php
+                    //dd($total_periodo);
+                @endphp
+                @for ($x=1; $x<=12; $x++)
+                    <td>{{$total_periodo[$x]}}</td>
+                @endfor
+            </tr>
         @endif
     @endforeach
 @endforeach

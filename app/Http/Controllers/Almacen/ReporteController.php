@@ -874,6 +874,8 @@ class ReporteController extends Controller
              * @consumos: Hace referencia a los datos necesarios para la construcción del concentrado. Los datos solicitados son: ubpp, departamento, oficina, clave articulo, 
              * descripción del artículo, descripción corta de la unidad del artículo, cantidad de consumo, periodo del consumo y mes del consumo.
              * 
+             * @totales_p_consumo: Contiene la suma de las cantidades de consumos de artículos. Los clasifica por oficina y periodo.
+             * 
              * @deptos: Departamentos principales, es decir, con clave '0' de oficina. SÍ tuvieron consumos.
              * 
              * @oficinas: Todas las oficinas existentes en la BD del IPE
@@ -895,7 +897,15 @@ class ReporteController extends Controller
                     'detalles.cantidad', 'periodos.id_periodo', 'periodos.no_mes')
                 ->where('periodos.anio', '=',[$yearInicio])
                 ->get();
-            
+
+            $totales_p_consumo = DB :: table('detalles')
+                ->join('consumos', 'consumos.id_consumo', '=', 'detalles.id_consumo')
+                ->join('cat_oficinas', 'cat_oficinas.id', '=', 'consumos.id_oficina')
+                ->join('periodos', 'periodos.id_periodo', '=', 'consumos.id_periodo')
+                ->select('cat_oficinas.id as id_oficina', 'periodos.no_mes', 'cat_oficinas.ubpp', DB::raw('SUM(cantidad) as suma'))
+                ->groupBy('id_oficina', 'no_mes', 'ubpp')
+                ->get();
+
             $deptos = DB :: table('cat_oficinas')
                 ->join('consumos', 'cat_oficinas.ubpp', '=', 'consumos.ubpp_consumo')
                 ->join('periodos', 'consumos.id_periodo', '=', 'periodos.id_periodo')
@@ -931,7 +941,8 @@ class ReporteController extends Controller
             //dd($consumos);    
 
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'deptos', 'articulos', 'oficinas', 'periodos', 'yearInicio',  'pdf', 'orientacion'));
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'totales_p_consumo', 'deptos', 'articulos', 'oficinas', 'periodos', 'yearInicio',  
+                                        'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
             $options -> set(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true, 'isPhpEnabled' => true]);
