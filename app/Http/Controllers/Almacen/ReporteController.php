@@ -880,8 +880,6 @@ class ReporteController extends Controller
              * 
              * @oficinas: Todas las oficinas existentes en la BD del IPE
              * 
-             * @periodos: Períodos dados de alta en la BD del IPE
-             * 
              * @articulos: Artículos que tuvieron consumos
             */
 
@@ -933,15 +931,10 @@ class ReporteController extends Controller
                 ->where('periodos.anio', '=', [$yearInicio])
                 ->groupBy('id', 'ubpp', 'oficina', 'nombre_oficina')
                 ->get();
-
-            $periodos = DB :: table('periodos')
-                ->select('*')
-                ->where('periodos.anio', '=', [$yearInicio])
-                ->get();
-            //dd($consumos);    
+            //dd($totales_p_consumo);    
 
             $pdf = new Dompdf();
-            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'totales_p_consumo', 'deptos', 'articulos', 'oficinas', 'periodos', 'yearInicio',  
+            $html = view($ruta,compact('mensaje','fecha','hora','logo_b64', 'headers', 'tipo', 'consumos', 'totales_p_consumo', 'deptos', 'articulos', 'oficinas', 'yearInicio',  
                                         'pdf', 'orientacion'));
             $pdf -> setPaper($papel, $orientacion);
             $options = new Options();
