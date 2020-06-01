@@ -1,10 +1,16 @@
 @extends('adminlte::layouts.landing')
 
 @section('style')
-	
+
 {!! Html::style('components/bootstrap-table/dist/bootstrap-table.css') !!}
 
-  <style>
+<style>  
+  /*.img{
+		width:80px;
+  	height:80px;
+	}*/
+
+  
     .boton{
 		width:150px;
   		height:150px;
@@ -28,90 +34,85 @@
 		  width:50px;
   		height:50px;
 	}
-  </style>
+
+</style>
+
 @endsection
 
 @section('content')
- 
+
 <div class="row">
+
+
+
     <div class="col-md-1"></div> <!-- ./ col-md-1 -->
+    
     <div class="col-md-10">
+   
+   
 
     <div class="box box-widget widget-user-2">
 
       <!--CABECERA -->
-      <div class="widget-user-header bg-primary">
+      <div class="widget-user-header bg-white" style="background: url('../img_system/greca_larga.png'); width: 1397px; height:136px;">
+   
+     
         <div class="widget-user-image">
           {{ HTML::image('components/admin-lte/dist/img/avatar5.png', 'User Avatar', array('class' => 'img-circle')) }}
         </div>
         <h1 class="widget-user-username">
-          L.I. MIGUEL ÁNGEL ROJAS
-          <code class="pull-right">
+          
+          <code class="pull-left" style="color:#49453C">
+            L.I. MIGUEL ÁNGEL ROJAS
+            <br>
+            
+            <div style="font-size:14px; font-family:Verdana, Geneva, sans-serif;">
+            JEFE DE OFICINA DE INFRAESTRUCTURA Y ASISTENCIA TÉCNICA
+            </div>
+
+          </code>
+          
+        </h1>
+        <br>
+        <br>
+       
+        <h1 style="font-size:24px; font-family:Verdana, Geneva, sans-serif;">
+          <code class="pull-right" style="color:#49453C">
             TECNOLOGÍAS DE LA INFORMACIÓN
           </code>
-        </h1>
-        <h5 class="widget-user-desc">JEFE DE OFICINA DE INFRAESTRUCTURA Y ASISTENCIA TÉCNICA</h5>
+          
+        <h1>
+          
+        <h5 class="widget-user-desc"></h5>
       </div><!-- /. widget-user-header bg-yellow -->
 
       <!--COLLAPSE DE FORMATOS DE PERMISOS -->     
       <div class="box box-solid">
           <div class="box-body">
-
             <div class="box-group" id="accordion">
 
               <!-- PRIMER COLLAPSE DE OBJETIVOS-->
-              <div class="panel box box-primary">
+              <div class="panel box box-default">
                 <div class="box-header with-border">
                     <h4 class="box-title">
                       <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                        Objetivo
+                       <div style="color:#3B0B0B; font-size:24px;"> Objetivo</div>
                       </a>
                     </h4>
                 </div>
                 
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="box-body">
-                      <p style="font-size:20px; text-align:justify;"> Garantizar el adecuado funcionamiento de las tecnologías de información y comunicación (software y hardware) en las 
-                      diferentes dependencias de la Institución, así como para los Procesos del Sistema de Gestión de Calidad, mediante la 
-                      realización del mantenimiento de hardware y software con asistencia técnica preventiva y correctiva.</p>
+                      <p style="font-size:20px; text-align:justify;">Mantener en el tiempo la continuidad operativa de la plataforma tecnológica de los usuarios, consiguiendo con esto optimizar la productividad de ellos, mediante el mantenimiento preventivo y correctivo de la plataforma computacional, todo esto dentro de tiempos de solución definidos.</p>
                     </div>
                 </div><!-- ./ collapseOne-->
               </div>  <!-- ./ panel box box-primary-->
               <!-- ./ PRIMER COLLAPSE DE OBJETIVOS-->
 
-              <!-- SEGUNDO COLLAPSE DE FUNCIONES -->
-              <div class="panel box box-success">
-                <div class="box-header with-border">
-                  <h4 class="box-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                      Descargar Formatos
-                    </a>
-                  </h4>
-                </div>
-                <div id="collapseTwo" class="panel-collapse collapse">
-                  <div class="box-body">
-                    
-                   
-
-
-
-
-                  </div><!-- box-body collapseTwo-->
-                </div><!-- ./ collapseTwo-->
-              </div> <!-- ./ panel box box-success-->
-
-              <!-- ./ SEGUNDO COLLAPSE DE OBJETIVOS-->
-
-
-              
+             
+             
 
             </div><!-- ./ box-group-->
-
-
-          
-
-
-
           </div><!-- ./ box-body-->
       </div><!-- ./ box box-solid-->
 
@@ -121,11 +122,10 @@
     <div class="col-md-1"></div> <!-- ./ col-md-1 -->
 </div> <!-- ./ row -->
 
+
 @endsection
 
 @section('script')
 
 @endsection
-
-
 

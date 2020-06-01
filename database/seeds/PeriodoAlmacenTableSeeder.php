@@ -13,7 +13,7 @@ class PeriodoAlmacenTableSeeder extends Seeder
     public function run()
     {
         $periodos = array(
-			[ 'no_mes' => '3', 'anio' => '2020', 'estatus' => '1']
+			[ 'no_mes' => '5', 'anio' => '2020', 'estatus' => '1']
 		);
 
 		foreach ($periodos as $periodo) {
