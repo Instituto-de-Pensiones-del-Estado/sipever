@@ -380,7 +380,6 @@ class ReporteController extends Controller
                 ->select('id','sscta','nombre')
                 ->orderBy('cat_cuentas_contables.sscta', 'asc')
                 ->get();  
-        
             
             $articulos = DB::table('inventario_inicial_final')
                 ->join('periodos', 'inventario_inicial_final.id_periodo', '=', 'periodos.id_periodo')
@@ -455,9 +454,9 @@ class ReporteController extends Controller
                       ->join('periodos', 'compras.id_periodo', "=", 'periodos.id_periodo')
                       ->select('cat_articulos.clave', 'cat_articulos.descripcion', 'compras.no_factura', 'cat_unidades_almacen.descripcion_corta', 'detalles.cantidad', 'detalles.precio_unitario', 'detalles.subtotal', 'cat_articulos.id_cuenta')
                      /* ->where('periodos.estatus', '=', 1)*/
-                     ->where('periodos.no_mes', '=', [$numMesInicio])
-                      ->get();
-            //dd($articulos); 
+                    ->where('periodos.no_mes', '=', [$numMesInicio])
+                    ->get();
+            dd($articulos); 
 
 
             $total_movimientos = DB::table('detalles')
@@ -825,22 +824,19 @@ class ReporteController extends Controller
             $total_partidas = DB::table('cat_cuentas_contables')->select('id', 'sscta', 'nombre')
                 ->orderBy('cat_cuentas_contables.sscta', 'asc')
                 ->get();  
-            
             $total_articulos = DB::table('cat_articulos')
                 ->join('cat_unidades_almacen', 'cat_articulos.id_unidad', '=', 'cat_unidades_almacen.id')
-                ->select('cat_articulos.id','cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias', 
-                'cat_articulos.precio_unitario','cat_articulos.id_cuenta')
+                ->select('cat_articulos.id','cat_articulos.clave', 'cat_articulos.descripcion', 'cat_unidades_almacen.descripcion_corta', 'cat_articulos.existencias','cat_articulos.id_cuenta')
                 ->orderBy('id_cuenta', 'desc')
                 ->get();
-            
+
             $existencias_articulos = DB::table('inventario_inicial_final')
                 ->join('periodos', 'inventario_inicial_final.id_periodo', '=', 'periodos.id_periodo')
                 ->join('cat_articulos', 'inventario_inicial_final.id_articulo', '=', 'cat_articulos.id')
                 ->where('periodos.anio', '=', [$yearInicio])
                 ->whereBetween('periodos.no_mes', [$numMesInicio, $mesFin])
                 ->select('cat_articulos.id', 'periodos.no_mes', 'inventario_inicial_final.existencias')
-                ->get();            
-
+                ->get();     
             $estatus_mes = DB::table('periodos')
                 ->where('estatus', '=', 1)
                 ->select('no_mes')
