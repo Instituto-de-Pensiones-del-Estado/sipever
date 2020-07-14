@@ -40,7 +40,7 @@
     <div class="box box-widget widget-user-2">
 
       <!--CABECERA -->
-      <div class="widget-user-header bg-primary">
+      <div class="widget-user-header bg-white" style="background: url('../img_system/greca.png') center center;">
         <div class="widget-user-image">
           {{ HTML::image('components/admin-lte/dist/img/avatar5.png', 'User Avatar', array('class' => 'img-circle')) }}
         </div>

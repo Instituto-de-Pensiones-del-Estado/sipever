@@ -41,6 +41,8 @@
 				z-index:1;
 			}
 
+			
+
 		</style>	
 
 		
@@ -50,34 +52,40 @@
 
 	</head>
 <body class="skin-black sidebar-mini @if (Cookie::get('toggleState') === 'closed') {{ 'sidebar-collapse' }} @endif ">
-	<div class="wrapper">
+	<div class="wrapper" >
+
+	
 		<!-- Main Header -->
 		<header class="main-header">
+		
 			<!-- Logo -->
 			<a href="" class="logo" style="background-color: #aa983f;">
-				<!-- mini logo for sidebar mini 50x50 pixels -->
-				<span class="logo-mini" style="background-color: #aa983f; color:#FFFFFF">IPE</span>
-				<!-- logo for regular state and mobile devices -->
-				<span class="logo-lg" style="background-color: #aa983f; color:#FFFFFF">IPE</span>
+	
+				<img src="{!! url('') !!}/img_system/logo_ipe.png" align="center" width="100" height="38"></span>
+				
 			</a>
 
 			<!-- Header Navbar -->
 			<nav class="navbar navbar-static-top" role="navigation"  style="background-color: #aa983f;">
+			
 				<!-- Sidebar toggle button-->
 				<a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button" style="color:#060100">
 					<span class="sr-only">Toggle navigation</span>
+					
 				</a>
-
+				
 				
 				<!-- Navbar Right Menu -->
 				<div class="navbar-custom-menu">
+				<img src="{!! url('') !!}/img_system/logo_veracruz.png" align="right" width="100" height="45" margin-left="20px">
+				
 					<ul class="nav navbar-nav">		
-
+					
 						<li class="dropdown user user-menu">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color:#060100">
+							<!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color:#060100">
 								<i class="fa fa-book"></i>
 								<span class="hidden-xs">Directorio</span>
-							</a>
+							</a> -->
 							<ul class="dropdown-menu">				
 							
 								<li style="text-align:right;">
@@ -87,7 +95,7 @@
 									</div>
 							
 								</li>
-							
+								
 							</ul>
 						</li>	
 
@@ -123,6 +131,7 @@
 						<!-- Control Sidebar Toggle Button -->
 					</ul>
 				</div>
+				
 			</nav>
 		</header>
 
@@ -194,7 +203,7 @@
 						</ul>
 					</li>
 
-						<!-- MODULO DE SERVICIOS -->
+						<!-- MODULO DE SERVICIOS 
 					<li class="treeview">
 						<a href="#">
 							<i class="fa fa-tags"></i>
@@ -225,13 +234,13 @@
 							<li><a href="UI/sliders.html"><i class="fa fa-spinner"></i> Recursos Financieros</a></li>
 							<li><a href="UI/sliders.html"><i class="fa fa-spinner"></i> Contabilidad y Presupuesto</a></li>--}}
 						</ul>
-					</li>
+					</li>-->
 
 
 
 					<li class="treeview">
 						<a href="#">
-							<i class="fa fa-share"></i> <span>Áreas</span>
+							<i class="fa fa-tags"></i> <span>Áreas</span>
 							<span class="pull-right-container">
 							<i class="fa fa-angle-left pull-right"></i>
 							</span>
@@ -249,9 +258,9 @@
 								</a>
 								<ul class="treeview-menu">
 									<!-- Nivel 2 -->
-									<li><a href="#"><i class="fa fa-circle-o"></i> Directora General</a></li>
-									<li><a href="#"><i class="fa fa-circle-o"></i> Unidad de Género</a></li>
-									<li><a href="#"><i class="fa fa-circle-o"></i> Unidad de Transparencia</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Directora General</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Unidad de Género</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Unidad de Transparencia</a></li>
 								</ul>
 							</li>
 
@@ -265,9 +274,9 @@
 								</a>
 								<ul class="treeview-menu">
 									<!-- Nivel 2 -->
-									<li><a href="#"><i class="fa fa-circle-o"></i> Subdirector Jurídico</a></li>
-									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de lo Consultivo</a></li>
-									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de lo Contencioso</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Subdirector Jurídico</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Dpto. de lo Consultivo</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Dpto. de lo Contencioso</a></li>
 									
 								</ul>
 							</li>
@@ -282,36 +291,28 @@
 								</a>
 								<ul class="treeview-menu">
 									<!-- Nivel 2 -->
-									<li><a href="#"><i class="fa fa-circle-o"></i> Subdirector Admvo.</a></li>
-									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de Rec. Humanos</a></li>
-									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de Adquisic. e Invent.</a></li>
-									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de Serv. Grales.</a></li>
-									<li><a href="#"><i class="fa fa-circle-o"></i> Depto. de TI</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Subdirector Admvo.</a></li>
+									<li><a href="{!! url('/recursos_humanos') !!}"><i class="fa fa-spinner"></i> Depto. Rec. Humanos</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Depto. Adq. e Inv.</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Depto. Servicios Grales.</a></li>
+									<li><a href="{!! url('/tecnologias') !!}"><i class="fa fa-spinner"></i> Depto. TI</a></li>
 								</ul>
 							</li>
 
 							<!-- Subdirección de Prestaciones Institucionales -->
 							<li class="treeview">
 								<!-- Nivel 1 -->
-								<a href="#"><i class="fa fa-circle-o"></i> Subdir. de Prest. Instit.
+								<a href="#"><i class="fa fa-circle-o"></i> Subdir. de Prest. Inst.
 									<span class="pull-right-container">
 									<i class="fa fa-angle-left pull-right"></i>
 									</span>
 								</a>
 								<ul class="treeview-menu">
 									<!-- Nivel 2 -->
-									<li class="treeview">
-										<a href="#"><i class="fa fa-circle-o"></i> Level Two
-											<span class="pull-right-container">
-											<i class="fa fa-angle-left pull-right"></i>
-											</span>
-										</a>
-										<ul class="treeview-menu">
-											<!-- Nivel 3 -->
-											<li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
-											<li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
-										</ul>
-									</li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Subdirector Prest. Inst.</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Dpto. Prest. Economicas</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Dpto. Banco de Datos</a></li>
+									<li><a href="#"><i class="fa fa-spinner"></i> Dpto. Vig. de Derechos</a></li>
 								</ul>
 							</li>
 
@@ -326,16 +327,9 @@
 								<ul class="treeview-menu">
 									<!-- Nivel 2 -->
 									<li class="treeview">
-										<a href="#"><i class="fa fa-circle-o"></i> Level Two
-											<span class="pull-right-container">
-											<i class="fa fa-angle-left pull-right"></i>
-											</span>
-										</a>
-										<ul class="treeview-menu">
-											<!-- Nivel 3 -->
-											<li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
-											<li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
-										</ul>
+										<li><a href="#"><i class="fa fa-spinner"></i> Subdirector de Finanzas</a></li>
+										<li><a href="#"><i class="fa fa-spinner"></i> Dpto. Rec. Financieros</a></li>
+										<li><a href="#"><i class="fa fa-spinner"></i> Dpto. Cont. y Presup.</a></li>
 									</li>
 								</ul>
 							</li>
@@ -381,6 +375,7 @@
 			<!-- /.sidebar -->
 		</aside>
 		<div class="content-wrapper" style="min-height: 1080.3px; background-color: #F3EFE0;">
+		
 			<section class="content-header">
 				@yield('content-header')
 			</section>
@@ -388,14 +383,21 @@
 			<section class="content">
 				<div class="row">
 					@yield('content')
+					
 				</div>
+			
+				
+				
 			</section>
-
+			
+			<!--<img src="img_system/greca_gris2.png" align="right" width="400" height="200" margin-bottom="75px;">		-->
 		</div>
+			
 
 
 
 		<footer class="main-footer" style="background-color: #F3EFE0;">
+		
 			<div class="pull-right hidden-xs">
 				<b>Version</b> "1.0"
 			</div>
